@@ -34,6 +34,16 @@ Johannes Kepler University, Linz, Austria\\
 \email{nils.froleyks@jku.at}}
 %
 \maketitle              % typeset the header of the contribution
+
+%macros for sokoban level figures
+\newcommand{\w}{\includegraphics{figures/wall.pdf} \hspace{-0.3em}}
+\newcommand{\e}{\includegraphics{figures/empty.pdf} \hspace{-0.3em}}
+\newcommand{\p}{\includegraphics{figures/worker.pdf} \hspace{-0.3em}}
+\newcommand{\x}{\includegraphics{figures/box.pdf} \hspace{-0.3em}}
+\newcommand{\g}{\includegraphics{figures/goal.pdf} \hspace{-0.3em}}
+\newcommand{\n}{\\
+\vspace{-0.06em}}
+
 %
 \begin{abstract}
 Designing interesting and challenging levels for a puzzle game is a very difficult and time
@@ -49,6 +59,38 @@ We will demonstrate our method on the well-known Japanese puzzle game Sokoban.
 %
 %
 \section{Introduction}
+
+\begin{figure}
+\centering
+\w\w\w\w\w\w\n
+\w\p\e\x\g\w\n
+\w\w\w\w\w\w\n
+\caption{Simple Sokoban Level. The graphic tiles are by \emph{Kenney.nl}}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{verbatim}
+(:action place_wall
+ :parameters(?w - wall ?to - tile)
+ :precondition(and
+   (making_level)
+   (opt_wall ?to)
+   (not (wall_placed ?w))
+   (not (wall ?to))
+   (not (box ?to))
+ )
+ :effect(and
+   (wall ?to)
+   (wall_placed ?w)
+ )
+)
+
+\end{verbatim}
+\caption{Sample PDDL Code}
+\end{figure}
+
+
 
 \section{Preliminaries}
 TODO definition of sokoban
