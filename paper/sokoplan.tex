@@ -36,7 +36,7 @@ Johannes Kepler University, Linz, Austria\\
 \maketitle              % typeset the header of the contribution
 
 %macros for sokoban level figures
-\newcommand{\sokoimg}[1]{\includegraphics[scale=2]{#1} \hspace{-0.35em}}
+\newcommand{\sokoimg}[1]{\includegraphics[scale=2]{#1} \hspace{-0.30em}}
 
 \newcommand{\w}{\sokoimg{figures/wall.pdf}}
 \newcommand{\e}{\sokoimg{figures/empty.pdf}}
@@ -45,7 +45,7 @@ Johannes Kepler University, Linz, Austria\\
 \newcommand{\g}{\sokoimg{figures/goal.pdf}}
 \newcommand{\h}{\sokoimg{figures/goalbox.pdf}}
 \newcommand{\n}{\\
-\vspace{-0.09em}}
+\vspace{-0.1em}}
 
 %
 \begin{abstract}
@@ -56,61 +56,203 @@ needs to be involved. In this paper we propose a new generic method for assistin
 designers to create solvable levels for a puzzle game by using Automated Planning. 
 We will demonstrate our method on the well-known Japanese puzzle game Sokoban.
 
-\keywords{First keyword  \and Second keyword \and Another keyword.}
+\keywords{Sokoban \and Automated Planning \and Puzzle Generation}
 \end{abstract}
 %
 %
 %
 \section{Introduction}
-
-TODO 6-11 pages
-
 Sokoban is a puzzle game that originated in Japan. It was invented by Hiroyuki
-Imabayashi, and published in 1982 by Thinking Rabbit, as a PC game.\footnote{
-  \url{https://en.wikipedia.org/wiki/Sokoban} (10.11.2016) } The word Sokoban is Japanese for warehouse keeper.
-
-Each level represents a warehouse, where boxes are randomly placed. A warehouse
-keeper has to push the boxes around the warehouse so that all boxes are on goals
-at the end of the game.
+Imabayashi, and published in 1982 by Thinking Rabbit, as a PC game~\cite{TODO}.
+The word Sokoban is Japanese for warehouse keeper.
+Each puzzle represents a warehouse, where boxes are randomly placed. A warehouse
+keeper (the player) has to push the boxes around the warehouse so that all boxes 
+end up in designated goal positions.
 
 The game of Sokoban is a complicated computational problem. It was first proven
 to be NP-hard \cite{dorit96} and then PSPACE-complete \cite{culberson97}. While
 the rules are simple, even small levels can require a lot of computation to be
-solved.
+solved. Designing interesting solvable levels is also challenging and a subject
+of academic research~\cite{murase1996automatic,taylor2011procedural,kartal2016data,de2019procedural}.
 
+Automated planning~\cite{TODO} is one of the central techniques in artificial intelligence.
+The task of planning is to find a sequence of actions, i.e., a plan, that transforms the world
+from a given initial state to a goal state, i.e., a state that satisfies the given goal conditions.
+Planning is a very competitive research area and there exist multiple high performance planning
+tools that are constantly being developed and improved~\cite{TODO}.
 
-\begin{figure}
-\centering
-\begin{verbatim}
-(:action place_wall
- :parameters(?w - wall ?to - tile)
- :precondition(and
-   (making_level)
-   (opt_wall ?to)
-   (not (wall_placed ?w))
-   (not (wall ?to))
-   (not (box ?to))
- )
- :effect(and
-   (wall ?to)
-   (wall_placed ?w)
- )
-)
+In this paper we will demonstrate how the power of automated planning tools can be utilized
+to design a system that can generate challenging solvable puzzles and intelligently assist
+a human puzzle designer. To our best knowledge, this is the first time, that automated planning has 
+been used in this context.
 
-\end{verbatim}
-\caption{Sample PDDL Code}
-\end{figure}
+We will demonstrate our technique on the example of Sokoban puzzles, since this is well known
+and well studied game. Nevertheless, the technique can be used for any puzzle game that satisfies
+the following conditions:
+\begin{itemize}
+\item Single player -- the game is played by a single player. There may exist helpful or adversary agents
+in the game as long as their behavior is fully deterministic and specified by simple rules.
+\item Finite and discrete game world -- each game state can be fully described with finitely many
+ finite domain variables.
+\item Deterministic game play -- random events or random outcomes of player actions are not allowed.
+\item Full observability -- there are no hidden or unknown elements that influence the game play.
+\end{itemize}
 
-Our goal is to generate Sokoban levels which fulfill the following three condition
-specified by Murase et.al~\cite{murase1996automatic}:
-\begin{enumerate}
-\item Generate original problems
-\item Generate problems that have solutions
-\item Generate interesting (non-trivial) problems
-\end{enumerate}
+The rest of the paper is organized as follows. In the next section we will provide the preliminary definitions
+of automated planning and the rules of Sokoban. Then we will review the related work in the
+area of procedural generation of Sokoban levels. Following that we will describe our new
+method and our new tool that implements it. Finally, we will present an evaluation of our tool and show
+examples of generated levels.
 
 \section{Preliminaries}
 
+\subsection{Automated Planning}
+As we already briefly stated in the introduction, planning is the task of finding a plan (a sequence of
+actions) that transforms the world from a given initial state to a goal state that satisfies the
+goal conditions. How to represent the world states, goal conditions, and describe the set of possible actions is
+defined in this Subsection.
+
+Planning problems are modeled using the Planning Domain Definition Language (PDDL)~\cite{TODO}, which is
+based on the programming language LISP~\cite{TODO}. PDDL is a very rich language with many features, however, we
+will only require a small subset of it which we will describe below.
+
+The basic building blocks of PDDL are \emph{Objects} and \emph{Types}. Each object is of a certain
+type. For example if we define a type "city" then we can define the objects "Paris", "London", and "Madrid" of
+the type "city". Another type could be "person" and the objects of this type are for example "Alice" and "John".
+In PDDL we would express this using the following lines:
+
+\begin{verbatim}
+(:types city person - object)
+(:objects 
+  Paris London Madrid - city
+  Alice John - person
+)
+\end{verbatim}
+
+In PDDL we can refer to objects using variables. Variable names always start with a question mark "?" and each
+variable has a type. For example a variable "c" of the type "city" would be declared as: \verb _(?c - city)_.
+
+Variables appear in \emph{Predicates}, which are atomic statements that are used to express certain
+conditions. For example, a predicate called "livesIn" could could have two parameters, one of the type "person"
+and one of the type "city". In PDLL we would declare this predicate as \verb _(livesIn ?p - person ?c - city)_
+and it would mean that an object of type "person" lives in an object of type "city". Using the predicate
+we can now declare facts about our objects by substituting variables with objects of the proper type, for example:
+
+\verb _(livesIn Alice Madrid), (livesIn John London)_.
+
+The last building block of PDDL that we need are operators, which can be intuitively understood as templates
+for actions. Actions change the world state by modifying the truth values of predicates. An action $a$ consists
+of a name $name(a)$, a set of preconditions $pre(a)$ and a set of effects $eff(a)$. 
+Both preconditions and effects are sets of grounded
+predicates (predicates where all variables are substituted by objects). 
+\begin{enumerate}
+\item Preconditions represent the predicates
+that must be true in the given world state in order to execute the action. We say that an action $a$
+is applicable in a given world state $s$ if and only if all predicates in $pre(a)$ hold true in $s$.
+\item Effects are used to update the world state after the action is executed. Positive effects are
+predicates that will become true (unless they are already true) after the action is executed. Negative
+effects are negated predicates and they become false. The state of all the other predicates that are not
+involved in the effects of the executed actions must remain unchanged.
+\end{enumerate}
+The following is an example of an action representing moving Alice form Madrid to Paris:
+\begin{verbatim}
+(:action move-Alice-Madrid-Paris
+  :precondition (and
+    (livesIn Alice Madrid)
+  )
+  :effect (and
+    (not (livesIn Alice Madrid))
+    (livesIn Alice Paris)
+  )
+)
+\end{verbatim}
+The precondition is that Alice lives in Madrid and the effects are that Alice does not live in Madrid anymore and
+she lives in Paris. If we wish to model all possible movements for both Alice and John and the three cities, we
+would need to write down 12 actions that are very similar to each other. A better solution is to use the
+already mentioned operators, i.e., action templates. Operators look like actions with the difference that they
+may have parameters and use predicates with variables in the preconditions and effects. An operator for
+the move actions would be declared as follows:
+\begin{verbatim}
+(:action move
+  :parameters(?p - person ?from ?to - city)
+  :precondition (and
+    (livesIn ?p ?from)
+  )
+  :effect (and
+    (not (livesIn ?p ?from))
+    (livesIn ?p ?to)
+  )
+)
+\end{verbatim}
+A planner would then generate all the possible actions from this template by substituting all the possible
+combinations of objects for the three parameters. This process is referred to as grounding.
+
+Now we have everything we need to fully describe a planning problem in PDDL, which consists of the following
+elements:
+\begin{enumerate}
+\item set of used types
+\item set of predicates
+\item set of operators
+\item list of all the objects in the problem together with their types
+\item the initial state of the world in the form of grounded predicates (predicates with objects substituted for
+all variables).
+\item the goal conditions in the form of grounded predicates.
+\end{enumerate}
+
+When describing a planning problem in PDDL we split the description into two files: domain.pddl and problem.pddl.
+The first file, domain.pddl contains the types, predicates, and operators. The rest in written in the problem.pddl
+file. Four our moving example the domain.pddl would look like:.
+
+\begin{verbatim}
+(define (domain moving)
+  (:requirements :strips :typing)
+  (:types city person - object)
+  (:predicates
+    (livesIn ?p - person ?c - city)
+  )
+  (:action move
+    :parameters(?p - person ?from ?to - city)
+    :precondition (and
+      (livesIn ?p ?from)
+    )
+    :effect (and
+      (not (livesIn ?p ?from))
+      (livesIn ?p ?to)
+    )
+  )
+)
+\end{verbatim}
+and the problem.pddl would contain:
+\begin{verbatim}
+(define (problem moving-1)
+  (:domain moving)
+  (:requirements :strips :typing)
+  (:objects
+    Paris London Madrid - city
+    Alice John - person
+  )
+  (:init
+    (livesIn Alice Madrid)
+    (livesIn John London)
+  )
+  (:goal (and
+    (livesIn Alice Paris)
+    (livesIn John Paris)
+  ))  
+)
+\end{verbatim}
+The domain file file describes the general planning problem of moving people between cities, while the problem
+file describes the concrete problem instance of moving John and Alice from London and Madrid to Paris.
+An automated planner would now take these two files and find a plan, which in this case would consist of two
+actions: \verb _move-alice-madrid-paris_ and \verb _move-john-london-paris_.
+
+Since automated planning is very competitive research field, it is easy to find very well performing
+planning tools that are freely available on the internet. One way to choose a good planner is to look
+at the International Planning Competition website~\cite{TODO}, where state-of-the-art planners are evaluated 
+and compared in regular time intervals.
+
+
+\subsection{Sokoban}
 \begin{figure}
 \centering
 \w\e\x\e\g\e\p\n
@@ -240,18 +382,68 @@ Taylor and Parberry~\cite{taylor2011procedural}. The experiment showed that play
 procedurally generated levels equally interesting to hand-crafted levels. This demonstrates
 that there is entertainment value in procedurally generated puzzles.
 
-Kartal et al.~\cite{kartal2016data} propose a Monte Carlo tree search based Sokoban level
-generator.
-TODO more detailed description
+Kartal et al.~\cite{kartal2016data} propose a Monte Carlo tree search (MCTS) based Sokoban level
+generator. They formulate puzzle generation as an MCTS optimization problem such that the puzzles
+are generated through simulated game play. The search process starts with a level full of walls except
+for one tile, which contains the player in its start position. The following actions are possible at each
+node of the search tree:
+\begin{enumerate}
+\item \emph{Remove a Wall.} Choose a wall that is adjacent to an empty tile and remove it. By only removing walls
+adjacent to empty tiles they can ensure that no unreachable rooms are generated.
+\item \emph{Place a Box.} Choose an empty tile and put a box there.
+\item \emph{Freeze the Level.} With this action the search is changed to play mode. Removing walls and placing
+boxes is not allowed after this action. The current positions of walls, boxes and the player constitute 
+the starting state of the level (without any goal positions, they will be defined later).
+\item \emph{Move the Player.} Simulate play by executing legal moves of the player, i.e., walking 
+around and pushing boxes.
+\item \emph{Evaluate the Level.} This is the final action of each search path. The current positions of the boxes
+are declared to be the goal locations and the quality of the generated level is estimated based on data driven
+evaluation functions.
+\end{enumerate}
+
+Similarly to the previously presented method, this generator also has the anytime property. It is capable of
+producing a wide variety of levels thanks to its stochastic nature. Nevertheless, like all the presented approaches,
+it has its limitations and the generation of large puzzles remains a bottleneck as the 
+number of possible level designs grows exponentially.
 
 An up-to-date survey on procedural puzzle generation~\cite{de2019procedural} gives an overview
-of the methods for generating puzzles for Sokoban and many other similar games.
+of the methods for generating puzzles for many games similar to Sokoban.
 
 \section{Puzzle Generation as Planning}
+Our goal is to generate Sokoban levels which fulfill the following three condition
+specified by Murase et.al~\cite{murase1996automatic}:
+\begin{enumerate}
+\item Generate original levels (level that do not exist yet)
+\item Generate levels that have solutions
+\item Generate interesting (non-trivial) levels
+\end{enumerate}
+
 
 \subsection{Sokoban Solving as Planning}
 
 \subsection{Level Creation as Planning}
+
+\begin{figure}
+\centering
+\begin{verbatim}
+(:action place_wall
+ :parameters(?w - wall ?to - tile)
+ :precondition(and
+   (making_level)
+   (opt_wall ?to)
+   (not (wall_placed ?w))
+   (not (wall ?to))
+   (not (box ?to))
+ )
+ :effect(and
+   (wall ?to)
+   (wall_placed ?w)
+ )
+)
+
+\end{verbatim}
+\caption{Sample PDDL Code}
+\end{figure}
 
 \subsection{Dealing with Trivial Levels}
 The planner tries to find short plans, it will try to place boxes next to goals
