@@ -316,6 +316,7 @@ A level may have no solution. Such a level is undesirable and should not be pres
 for obvious reasons.
 
 \section{Related Work}
+\label{sec-related}
 The first published Sokoban level generator algorithm is by Murase et al.~\cite{murase1996automatic}.
 Their approach has three phases.
 \begin{enumerate}
@@ -482,20 +483,145 @@ An example of a Sokoban level and its encoding in given on Figure~\ref{fig-solve
   (box_at s41) (box_at s33)
 ))
 \end{verbatim}
+
 \end{subfigure}
 \caption{A Sokoban level (left) and its encoding in PDDL (right)}
 \label{fig-solve-example}
 \end{figure}
 
-
-
 \subsection{Level Creation as Planning}
+As we already mentioned in the introduction, our generator is meant to assist a human designer and not
+just generate fully random levels (as is the case in the related work presented in Section~\ref{sec-related}).
+Therefore we start with a partially built level that must already contain the outer walls of the puzzle (the
+border that encloses the puzzle) and all the goal positions. However, additional walls, boxes and even the 
+worker position may be defined. The designer must then specify which of the remaining free squares may contain
+a wall, a box, a worker, or some combination of the three. The designer must also declare how many additional
+walls and boxes should be added to the puzzle. If there is no worker position specified in the input then
+the worker will be added automatically. We will refer to this input as a \emph{level template}.
+Figure~\ref{fig-input} contains an example of a level template, the
+corresponding starting puzzle and final puzzle.
 
+\begin{figure}
+\begin{verbatim}
+p sokogen 1 2 0   // this line means we want to add 1 wall and 2 boxes
+####              // symbols: # - wall             $ - box
+#2.#              //          @ - worker           . - goal
+#00###            //          + - worker on goal   * - box on goal
+#.333#            // The numbers specify which tokens can be placed:
+# 333#            //   0 - any     3 - box              6 - wall or box
+#22###            //   1 - worker  4 - worker or wall
+####              //   2 - wall    5 - worker or box
+\end{verbatim}
+\centering
+\w\w\w\w\e\e\e\e\w\w\w\w\e\e\n
+\w\e\g\w\e\e\e\e\w\w\g\w\e\e\n
+\w\e\e\w\w\w\e\e\w\e\p\w\w\w\n
+\w\g\e\e\e\w\e\e\w\g\x\x\e\w\n
+\w\e\e\e\e\w\e\e\w\e\e\e\e\w\n
+\w\e\e\w\w\w\e\e\w\e\e\w\w\w\n
+\w\w\w\w\e\e\e\e\w\w\w\w\e\e\n
 
-\subsection{Dealing with Trivial Levels}
-The planner tries to find short plans, it will try to place boxes next to goals
+\caption{An example input file for our Sokoban puzzle generator (top), the starting puzzle (down left)
+and the final solvable level (down right).}
+\label{fig-input}
+\end{figure}
 
-solution: minimal number of pushes
+To transform a level template into solvable level will be task of the automated planner. In order to do this
+we must model the problem in PDDL. The PDDL model is an extension of the model used for solving Sokoban puzzles
+that we described in the previous Subsection. We will add four new operators:
+\begin{enumerate}
+\item \emph{Add wall.} This operator adds a wall to one of the squares that free and is allowed to contain a wall
+according to the level template.
+\item \emph{Add box.} Like the "add wall" operator, but for adding a box.
+\item \emph{Add worker.} Like the previous two but adds the worker.
+\item \emph{Start playing.} This operator means that we transition from the level creation phase to the playing
+phase. No more walls, boxes or workers can be added after this action is executed. Move and push actions
+are not allowed to happen before this action.
+\end{enumerate}
+
+We also need to modify the goal conditions. For Sokoban solving we only required that all goal positions
+contain a box. Now we also require that the specified number of walls and boxes was placed. To model
+this we introduce two new types: wall and box. Then we declare as many objects of both types as
+we need to add according to the level template. For example, if need to add 3 walls and 5 boxes, then
+we declare 3 objects of type wall and 5 objects of type box. Then with the help of two new predicates:
+\verb *(wall_placed ?w - wall)* and \verb *(box_placed ?b - box)* we can encode that all the additional walls
+and boxes have been placed.
+
+In the initial state we must specify which squares may contain additional walls, boxes, or the player.
+For this purpose we introduce three new predicates: \verb *(opt_wall ?s - square)* for walls, 
+\verb *(opt_box ?s - square)* for boxes, and \verb *(opt_worker ?s - square)* for the workers.
+
+To implement the \emph{start playing} operator we will define two new predicates:
+\verb *(making_level)* and \verb *(playing)* to represent the current phase of the puzzle generation.
+The \verb *(making_level)* is added to the initial state of problem definition, since we always start in
+this phase.
+
+Now that we have defined all the new predicates we can model the four new operators in PDDL. We start
+with operators to place walls and boxes.
+
+\begin{verbatim}
+(:action place_wall          (:action place_box
+  :parameters(                 :parameters(
+    ?w - wall ?to - square       ?b - box ?to - square
+  )                            ) 
+  :precondition(and            :precondition(and
+    (making_level)               (making_level)
+    (opt_wall ?to)               (opt_box ?to)
+    (not (wall_placed ?w))       (not (box_placed ?b))
+    (not (wall_at ?to))          (not (wall_at ?to))
+    (not (box_at ?to))           (not (box_at ?to))
+  )                            )
+  :effect(and                  :effect(and
+    (wall_at ?to)                (box_at ?to)
+    (wall_placed ?w)             (box_placed ?w)
+  )                            )
+)                            )
+\end{verbatim}
+The "place worker" and "start playing" are defined next. Note, that "place worker" also changes the phase
+to playing. This way we can ensure that the worker is added last and only once. Thanks to this property the
+operators to place the walls and the boxes do not need to check whether a worker has been placed on the square
+the wish to place their item.
+
+\begin{verbatim}
+(:action place_player_and_start   (:action start_play
+  :parameters(?to - tile)           :parameters()
+  :precondition (and                :precondition(and
+    (making_level)                    (making_level)
+    (opt_player ?to)                )
+    (not (wall_at ?to))             :effect(and
+    (not (box_at ?to))                (not (making_level))
+  )                                   (playing)
+  :effect(and                       )
+    (player_at ?to)               )
+    (not (making_level))
+    (playing)
+  )
+)
+\end{verbatim}
+Lastly, the move and push operators from the Sokoban solving domain need to be slightly updated.
+The predicate \verb *(playing)* must be added to preconditions. With this we have described a correct and
+complete encoding of the Sokoban puzzle generation into PDDL. However, there is one small issue we need to
+address.
+
+Planners always try to find short plans. This has an unpleasant consequence for our problem. 
+The planner is motivated to
+place the walls and boxes in such a way, that the generated puzzle can be solved with as few moves and
+pushes as possible. This means, that the generated levels tend to be very easy to solve.
+In order to address this issue, we modeled a mechanism, that enforces a certain minimum amount of
+pushes in the solve phase. This value can be specified by the puzzle designer as the third
+parameter on the "p line" in the level template (see Figure~\ref{fig-input}).
+This is modeled by adding a counter to the push operators, that is increased with each push action.
+Then in the goal conditions we can require that the counter reaches the required value.
+
+\subsection{Comparison to related work}
+Our method bears the most similarity to the approach of Kartal et al.~\cite{kartal2016data} (see Section~\ref{sec-related}. They formulate the puzzle generation as an MCTS optimization problem, while me model it as a planning
+problem. They start with a level that contains the worker and is otherwise full of walls and then remove some 
+walls and add some boxes. We start with
+a partially built level that already contains all the goals and then we add additional walls, boxes and the worker.
+Then both approaches have a special action that transitions the search into the playing mode.
+Finally, in our approach we try to solve the level and backtrack to level building phase if it is not solvable.
+In Kartal et al.~\cite{kartal2016data} random moves are executed for some time and then the reached state is
+declared to be the goal state.
 
 \section{Experimental Evaluation}
 how does it scale?
