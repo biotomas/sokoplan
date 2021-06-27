@@ -5,6 +5,7 @@
 \documentclass[runningheads]{llncs}
 %
 \usepackage{graphicx}
+\usepackage{subcaption}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
@@ -36,7 +37,7 @@ Johannes Kepler University, Linz, Austria\\
 \maketitle              % typeset the header of the contribution
 
 %macros for sokoban level figures
-\newcommand{\sokoimg}[1]{\includegraphics[scale=2]{#1} \hspace{-0.30em}}
+\newcommand{\sokoimg}[1]{\includegraphics[scale=1.5]{#1} \hspace{-0.30em}}
 
 \newcommand{\w}{\sokoimg{figures/wall.pdf}}
 \newcommand{\e}{\sokoimg{figures/empty.pdf}}
@@ -253,10 +254,34 @@ and compared in regular time intervals.
 
 
 \subsection{Sokoban}
+
+Each Sokoban level consists of a two dimensional rectangular grid of squares that make
+up the "warehouse" (See Figure~\ref{fig-basic-level} for an example). 
+If a square contains nothing it is called a floor. Otherwise it is occupied by
+one of the following entities (see Figure~\ref{fig-tiles}):
+
+\begin{itemize}
+\item \emph{Wall.} Walls make up the basic outline of each level. They cannot be
+  moved and nothing else can be on a square occupied by a wall. A legal level is
+  always surrounded by walls.
+
+\item \emph{Box.} A box can either occupy a goal or an otherwise empty square. It can be
+  moved in the four cardinal directions by \emph{pushing} (see below).
+
+\item  \emph{Goal.} Goals are treated like floors for the most part. Only when
+  each goal is occupied by a box the game is completed. In a legal level the
+  number of goals matches the number of boxes. For the sake of simplicity, we
+  will call a square that is either a goal or a floor square \emph{free} since
+  the worker and boxes can enter both.
+
+\item \emph{Worker.} There must be exactly one worker in each level.
+  It is the only element that is directly controlled by the player.
+\end{itemize}
+
 \begin{figure}
 \centering
 \w\e\x\e\g\e\p\n
-\caption{The four kinds of tiles that make up a Sokoban warehouse: Wall, Box, Goal, and Player (from left to right).}.
+\caption{The four kinds of tiles that make up a Sokoban warehouse: Wall, Box, Goal, and Worker (from left to right).}.
 \label{fig-tiles}
 \end{figure}
 
@@ -271,82 +296,27 @@ The solution to this level consists of two steps: MOVE-RIGHT and PUSH-RIGHT.}.
 \label{fig-basic-level}
 \end{figure}
 
-
-Each Sokoban level consists of a two dimensional rectangular grid of squares that make
-up the "warehouse" (See Figure~\ref{fig-basic-level} for an example). The squares are indexed starting from the top left with
-$(0,0)$.
-If a square contains nothing it is called a floor. Otherwise it is occupied by
-one of the following entities:
-
+There are two kind of moves in Sokoban:
 \begin{enumerate}
-\item \emph{Wall.} Walls make up the basic outline of each level. They cannot be
-  moved and nothing else can be on a square occupied by a wall. A legal level is
-  always surrounded by walls.
-
-\item \emph{Box.} A box can either occupy a goal or an otherwise empty square. They can be
-  moved in the four cardinal directions by \emph{pushing}.
-
-  A \emph{push} is defined by a \emph{start position} and a \emph{direction}.
-  The start position is given by a tuple of indices $(x,y)$.
-
-  The direction can be either $up$, $down$, $left$ or $right$.
-
-  As figured below let us suppose the direction to be $right$.
-
-  For a push to be legal the following conditions must be met:
-  \begin{itemize}
-  \item A box is at position $(x, y)$.
-  \item The player can reach the position $(x-1, y)$.
-  \item Position $(x + 1, y)$ is either floor or a goal.
-  \end{itemize}
-  After executing the push the box is located at position $(x + 1, y)$ and the
-  player at position $(x,y)$.
-
-%  \begin{figure}[h!]
-%    \centering
-%    \includegraphics[width=0.4\textwidth]{graphics/pushPre.png}
-%    \includegraphics[width=0.4\textwidth]{graphics/pushPost.png}
-%    \caption{A push to the right}
-%  \end{figure}
-
-\item  \emph{Goal.} Goals are treated like floors for the most part. Only when
-  each goal is occupied by a box the game is completed. In a legal level the
-  number of goals matches the number of boxes. For the sake of simplicity, we
-  will call a square that is either a goal or a floor square \emph{free} since
-  the player and boxes can enter both.
-
-\item \emph{Player} The player can execute \emph{moves} to alter his position.
-
-  A \emph{move} can be $up$, $down$, $left$ or $right$. A move is also a push if
-  it alters the position of a box.
-
-  The player cannot move through walls or boxes. It can only move onto a square
-  occupied by a box if it can execute a push to move it out of the way.
-  Therefore the player cannot push more than one box at a time, nor can he pull
-  them.
-% \end{itemize}
+\item \emph{Move the worker.} The worker can be moved in the four cardinal directions (up, down, left, right)
+by one square in each step.
+This movement is directly controlled by the player. The worker may be moved onto an adjacent free square.
+\item \emph{Push a box.} The worker can push a box in a certain direction if the square behind the box is free.
+To be precise, there are always three squares (A,B,C) involved in a push move. The first (A) contains the worker, the
+second (B) contains a box and the third one (C) is a free (empty or goal) square. 
+These three squares must form a single
+line of adjacent squares. After the push is performed, the box occupies the free square (C) and the worker occupies
+the square formerly occupied by the box (B).
 \end{enumerate}
-
 
 The goal of the game is to find a \emph{solution}, which
 is a sequence of moves and pushes. Executing a solution leads to every box
 being on a goal. It does not matter which box ends up on which goal.
-
-
-A level with solution is given in figure \ref{fig:short}.
-
-%\begin{figure}[h!]
-%  \centering
-%  \includegraphics[width=0.45\textwidth]{graphics/shortSolution.png}
-%  \caption{A possible solution string: $rddLruulDuullddR$}
-%  \label{fig:short}
-%\end{figure}
-
-
-TODO definition of automated planning
+A level may have no solution. Such a level is undesirable and should not be presented to a human player
+for obvious reasons.
 
 \section{Related Work}
-The first available Sokoban level generator is by Murase et al.~\cite{murase1996automatic}.
+The first published Sokoban level generator algorithm is by Murase et al.~\cite{murase1996automatic}.
 Their approach has three phases.
 \begin{enumerate}
 \item \emph{Generate random levels}. In this phase predefined templates of walls are placed randomly
@@ -410,47 +380,122 @@ An up-to-date survey on procedural puzzle generation~\cite{de2019procedural} giv
 of the methods for generating puzzles for many games similar to Sokoban.
 
 \section{Puzzle Generation as Planning}
-Our goal is to generate Sokoban levels which fulfill the following three condition
-specified by Murase et.al~\cite{murase1996automatic}:
-\begin{enumerate}
-\item Generate original levels (level that do not exist yet)
-\item Generate levels that have solutions
-\item Generate interesting (non-trivial) levels
-\end{enumerate}
-
+Our proposed approach is based on the idea of using automated planners to generate solvable Sokoban levels.
+This means that our only task is to express the problem of level generation in PDDL and the rest is taken care of
+by the planning tool. We will formulate the problem of Sokoban level generation as an extension of Sokoban
+level solving.
 
 \subsection{Sokoban Solving as Planning}
+Using automated planning to solve Sokoban is not a new idea by any means. Actually, Sokoban is one of the
+standard benchmark problems used to evaluate new planning algorithms and tools in many academic papers
+and the international planning competition~\cite{TODO}. Nevertheless, in order to keep this paper self-contained,
+we will present a simple PDDL encoding of Sokoban in this Subsection.
+
+To encode Sokoban solving we will only require one kind of objects -- squares. We will have one
+object of type square for each location in the level that is not a wall. Additionally, we will
+need the following predicates:
+\begin{enumerate}
+\item \verb _(above ?a ?b - square)_ meaning that square "a" is above square "b"
+\item \verb *(left_of ?a ?b - square)* meaning that square "a" is on the left side of square "b"
+\item \verb *(box_at ?a - square)* meaining that there is a box at square "a"
+\item \verb *(worker_at ?a - square)* meaining that there is the worker at square "a"
+\end{enumerate}
+To complete the domain description we need to specify the operators. We will need two kinds
+of operators -- move and push and we will need 4 of each for the 4 cardinal directions (up, down, left, right).
+Fist, we will describe the move-up operator:
+\begin{verbatim}
+(:action move_up
+  :parameters (?from ?to - square)
+  :precondition(and
+    (above ?to ?from)
+    (worker_at ?from)
+    (not (box_at ?to))
+  )
+  :effect (and
+    (not (worker_at ?from))
+    (worker_at ?to)    
+  )
+)
+\end{verbatim}
+The operators for moving down, left, and right are analogous, they only differ on the line with
+\verb *(above ?to ?from)* where move-down has \verb *(above ?from ?to)*, move-left has
+\verb *(left_of ?to ?from)* and move-right has \verb *(left_of ?from ?to)*.
+Next we describe the push-up operator:
+\begin{verbatim}
+(:action push_up
+  :parameters (?from ?to ?box_to - square)
+  :precondition(and
+    (above ?to ?from)
+    (above ?box_to ?to)
+    (worker_at ?from)
+    (box_at ?to)
+    (not (box_at ?box_to))
+  )
+  :effect (and
+    (not (worker_at ?from))
+    (worker_at ?to)    
+    (not (box_at ?to))
+    (box_at ?box_to)
+  )
+)
+\end{verbatim}
+Like int the case of move operators, the other three push operators (push down, left, and right) only differ
+on the lines with the "above" predicates.
+
+What remains is to specify the initial state and the goal conditions. For the initial state we need to declare
+the following predicates:
+\begin{enumerate}
+\item \verb *(above a b)* for each pair of non-wall squares such that "a" is above "b".
+\item \verb *(left_of a b)* for each pair of non-wall squares such that "a" is on the left side of "b".
+\item \verb *(box_at a)* for each square "a" that contains a box.
+\item \verb *(worker_at a)* for the square "a" that contains the worker.
+\end{enumerate}
+As for the goal conditions, we only need to specify that the goal squares must contain a box:
+\begin{enumerate}
+\item \verb *(box_at a)* for each square "a" that contains a goal.
+\end{enumerate}
+An example of a Sokoban level and its encoding in given on Figure~\ref{fig-solve-example}.
+
+\begin{figure}
+\begin{subfigure}[b]{0.35\textwidth}
+\centering
+\w\w\w\w\e\n
+\w\e\p\w\e\n
+\w\x\w\w\w\n
+\w\e\x\g\w\n
+\w\g\w\w\w\n
+\w\w\w\e\e\n
+\vspace{1em}
+\end{subfigure}
+\begin{subfigure}[b]{0.65\textwidth}
+\begin{verbatim}
+(:objects
+  s11 s12 s21 s31 s32 s33 s41 - square
+)
+(:init
+  (above s11 s21) (above s21 s31)
+  (above s31 s41) (left_of s11 s12)
+  (left_of s31 s32) (left_of s32 s33)
+  (box_at s21) (box_at s32) (worker_at s12)
+)
+(:goal (and
+  (box_at s41) (box_at s33)
+))
+\end{verbatim}
+\end{subfigure}
+\caption{A Sokoban level (left) and its encoding in PDDL (right)}
+\label{fig-solve-example}
+\end{figure}
+
+
 
 \subsection{Level Creation as Planning}
 
-\begin{figure}
-\centering
-\begin{verbatim}
-(:action place_wall
- :parameters(?w - wall ?to - tile)
- :precondition(and
-   (making_level)
-   (opt_wall ?to)
-   (not (wall_placed ?w))
-   (not (wall ?to))
-   (not (box ?to))
- )
- :effect(and
-   (wall ?to)
-   (wall_placed ?w)
- )
-)
-
-\end{verbatim}
-\caption{Sample PDDL Code}
-\end{figure}
 
 \subsection{Dealing with Trivial Levels}
 The planner tries to find short plans, it will try to place boxes next to goals
 
 solution: minimal number of pushes
-
-\subsubsection{Dealing with Cyclic Pushes}
 
 \section{Experimental Evaluation}
 how does it scale?
