@@ -52,10 +52,10 @@ public class SokobanLevelTemplate {
 		if (countOf(SokobanTile.player, SokobanTile.player_on_goal) > 1) {
 			error("Multiple players on the map are not allowed");
 		}
-		if (boxes > countOf(SokobanTile.possible_box, SokobanTile.possible_player_box, SokobanTile.possible_wall_box)) {
+		if (boxes > countOf(SokobanTile.possible_box, SokobanTile.possible_player_box, SokobanTile.possible_wall_box, SokobanTile.possible_player_wall_box)) {
 			error("There is not enough options to place the required amount of boxes");
 		}
-		if (walls > countOf(SokobanTile.possible_wall, SokobanTile.possible_player_wall, SokobanTile.possible_wall_box)) {
+		if (walls > countOf(SokobanTile.possible_wall, SokobanTile.possible_player_wall, SokobanTile.possible_wall_box, SokobanTile.possible_player_wall_box)) {
 			error("There is not enough options to place the required amount of walls");
 		}
 		if (boxes + countOf(SokobanTile.box) != countOf(SokobanTile.goal, SokobanTile.player_on_goal)) {
