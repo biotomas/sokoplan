@@ -56,7 +56,7 @@ public class SokobanPlan {
 					action.tileToPlace = SokobanTile.box;
 					action.to = new Position(parts[2]);
 					return action;
-				case "place_player_and_transition_to_play":
+				case "place_player_and_start":
 					action.type = ActionType.place;
 					action.tileToPlace = SokobanTile.player;
 					action.to = new Position(parts[1]);
