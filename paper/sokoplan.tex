@@ -271,16 +271,13 @@ one of the following entities (see Figure~\ref{fig-tiles}):
 \item \emph{Wall.} Walls make up the basic outline of each level. They cannot be
   moved and nothing else can be on a square occupied by a wall. A legal level is
   always surrounded by walls.
-
 \item \emph{Box.} A box can either occupy a goal or an otherwise empty square. It can be
   moved in the four cardinal directions by \emph{pushing} (see below).
-
 \item  \emph{Goal.} Goals are treated like floors for the most part. Only when
   each goal is occupied by a box the game is completed. In a legal level the
   number of goals matches the number of boxes. For the sake of simplicity, we
   will call a square that is either a goal or a floor square \emph{free} since
   the worker and boxes can enter both.
-
 \item \emph{Worker.} There must be exactly one worker in each level.
   It is the only element that is directly controlled by the player.
 \end{itemize}
@@ -638,6 +635,50 @@ In Kartal et al.~\cite{kartal2016data} random moves are executed for some time a
 declared to be the goal state.
 
 \section{Experimental Evaluation}
+
+%\renewcommand{\sokoimg}[1]{\includegraphics[scale=0.9]{#1} \hspace{-0.35em}}
+%\begin{figure}
+%\centering
+%\e\n
+%\w\w\w\w\w\w\w\e \w\w\w\w\w\e\e\e\e\e\e \w\w\w\w\w\e\e\w\w\w\w\w\n
+%\w\g\g\e\g\g\w\e \w\g\g\g\w\e\e\e\e\e\e \w\g\g\g\w\e\e\w\g\g\g\w\n
+%\w\e\e\g\e\e\w\e \w\g\e\g\w\e\e\e\e\e\e \w\g\e\g\w\e\e\w\g\e\g\w\n
+%\w\e\e\g\e\e\w\e \w\e\e\e\w\w\w\w\w\w\e \w\e\e\e\w\w\w\w\e\e\e\w\n
+%\w\g\g\e\g\g\w\e \w\g\e\e\e\e\e\e\g\w\e \w\g\e\e\e\e\e\e\e\e\g\w\n
+%\w\w\w\w\w\w\w\e \w\g\g\e\e\g\g\g\g\w\e \w\g\g\e\e\g\g\g\g\g\g\w\n
+%\e\e\e\e\e\e\e\e \w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\n
+%\e\n
+%\w\w\w\w\w\e\e\w\w\w\w\w\e \e\e\e\w\w\w\w\e\w\w\w\w\e\e\e\n
+%\w\g\g\g\w\e\e\w\g\g\g\w\e \e\e\e\w\g\g\w\e\w\g\g\w\e\e\e\n
+%\w\e\e\e\w\w\w\w\e\e\e\w\e \w\w\w\w\e\e\w\w\w\e\e\w\w\w\w\n
+%\w\e\e\e\e\g\g\e\e\e\e\w\e \w\g\e\e\e\e\e\e\e\e\e\e\e\g\w\n
+%\w\e\e\e\w\w\w\w\e\e\e\w\e \w\g\e\e\e\e\e\e\e\e\e\e\e\g\w\n
+%\w\g\g\g\w\e\e\w\g\g\g\w\e \w\w\w\w\e\e\w\w\w\e\e\w\w\w\w\n
+%\w\w\w\w\w\e\e\w\w\w\w\w\e \e\e\e\w\g\g\w\e\w\g\g\w\e\e\e\n
+%\e\e\e\e\e\e\e\e\e\e\e\e\e \e\e\e\w\w\w\w\e\w\w\w\w\e\e\e\n
+%\e\n
+%\e\e\e\w\w\w\w\w\e\e\e\e \w\w\w\w\w\e\e\e\e \w\w\w\w\w\w\w\w\w\w\n
+%\e\e\e\w\g\g\g\w\e\e\e\e \w\g\g\g\w\e\e\e\e \w\g\g\g\e\e\e\g\g\w\n
+%\w\w\w\w\e\e\e\w\w\w\w\e \w\g\e\g\w\e\e\e\e \w\g\e\e\e\e\e\e\g\w\n
+%\w\g\e\e\e\w\e\e\e\g\w\e \w\e\w\e\w\w\w\w\e \w\w\w\w\e\e\w\w\w\w\n
+%\w\g\e\e\e\w\e\e\e\g\w\e \w\e\w\e\e\e\g\w\e \e\e\e\w\g\g\w\e\e\e\n
+%\w\w\w\w\e\e\e\w\w\w\w\e \w\g\g\e\e\g\g\w\e \w\w\w\w\e\e\w\w\w\w\n
+%\e\e\e\w\g\g\g\w\e\e\e\e \w\w\w\w\w\w\w\w\e \w\g\e\e\e\e\e\e\g\w\n
+%\e\e\e\w\w\w\w\w\e\e\e\e \e\e\e\e\e\e\e\e\e \w\g\g\g\e\e\e\g\g\w\n
+%\e\e\e\e\e\e\e\e\e\e\e\e \e\e\e\e\e\e\e\e\e \w\w\w\w\w\w\w\w\w\w\n
+%\e\n
+%\w\w\w\w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\w\w\n
+%\w\g\g\g\e\g\g\g\e\e\g\g\w\e \w\g\g\g\e\e\g\g\e\e\g\g\g\w\n
+%\w\g\e\e\e\e\e\e\e\e\e\g\w\e \w\g\e\e\e\e\e\e\e\e\e\e\g\w\n
+%\w\w\w\w\e\w\w\w\e\w\w\w\w\e \w\w\w\w\e\e\w\w\e\e\w\w\w\w\n
+%\e\e\e\w\e\w\e\w\e\w\e\e\e\e \e\e\e\w\e\e\w\w\e\e\w\e\e\e\n
+%\w\w\w\w\e\w\w\w\e\w\w\w\w\e \w\w\w\w\e\e\w\w\e\e\w\w\w\w\n
+%\w\g\e\e\e\e\e\e\e\e\e\g\w\e \w\g\e\e\e\e\w\w\e\e\e\e\g\w\n
+%\w\g\g\g\e\g\g\g\e\e\g\g\w\e \w\g\g\g\g\g\w\w\g\g\g\g\g\w\n
+%\w\w\w\w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\w\w\n
+%\caption{lol}
+%\end{figure}
+
 how does it scale?
 
 what is the largest level we can create?
