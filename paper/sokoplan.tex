@@ -6,6 +6,12 @@
 %
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  allcolors=black,
+  urlcolor=blue
+}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
@@ -64,27 +70,27 @@ We will demonstrate our method on the well-known Japanese puzzle game Sokoban.
 %
 \section{Introduction}
 Sokoban is a puzzle game that originated in Japan. It was invented by Hiroyuki
-Imabayashi, and published in 1982 by Thinking Rabbit, as a PC game~\cite{TODO}.
+Imabayashi, and published in 1982 by Thinking Rabbit \cite{SokobanOfficial}.
 The word Sokoban is Japanese for warehouse keeper.
 Each puzzle represents a warehouse, where boxes are randomly placed. A warehouse
 keeper (the player) has to push the boxes around the warehouse so that all boxes 
 end up in designated goal positions.
 
 The game of Sokoban is a complicated computational problem. It was first proven
-to be NP-hard \cite{dorit96} and then PSPACE-complete \cite{culberson97}. While
+to be NP-hard \cite{dorit96} and later PSPACE-complete \cite{culberson97}. While
 the rules are simple, even small levels can require a lot of computation to be
 solved. Designing interesting solvable levels is also challenging and a subject
 of academic research~\cite{murase1996automatic,taylor2011procedural,kartal2016data,de2019procedural}.
 
-Automated planning~\cite{TODO} is one of the central techniques in artificial intelligence.
+Automated planning~\cite{ghallab2016automated} is one of the central techniques in artificial intelligence.
 The task of planning is to find a sequence of actions, i.e., a plan, that transforms the world
 from a given initial state to a goal state, i.e., a state that satisfies the given goal conditions.
 Planning is a very competitive research area and there exist multiple high performance planning
-tools that are constantly being developed and improved~\cite{TODO}.
+tools that are constantly being developed and improved~\cite{ipc}.
 
 In this paper we will demonstrate how the power of automated planning tools can be utilized
 to design a system that can generate challenging solvable puzzles and intelligently assist
-a human puzzle designer. To our best knowledge, this is the first time, that automated planning has 
+a human puzzle designer. To our best knowledge, this is the first time, that automated planning has
 been used in this context.
 
 We will demonstrate our technique on the example of Sokoban puzzles, since this is well known
@@ -95,8 +101,8 @@ the following conditions:
 in the game as long as their behavior is fully deterministic and specified by simple rules.
 \item Finite and discrete game world -- each game state can be fully described with finitely many
  finite domain variables.
-\item Deterministic game play -- random events or random outcomes of player actions are not allowed.
-\item Full observability -- there are no hidden or unknown elements that influence the game play.
+\item Deterministic gameplay -- random events or random outcomes of player actions are not allowed.
+\item Full observability -- there are no hidden or unknown elements that influence the gameplay.
 \end{itemize}
 
 The rest of the paper is organized as follows. In the next section we will provide the preliminary definitions
@@ -113,8 +119,8 @@ actions) that transforms the world from a given initial state to a goal state th
 goal conditions. How to represent the world states, goal conditions, and describe the set of possible actions is
 defined in this Subsection.
 
-Planning problems are modeled using the Planning Domain Definition Language (PDDL)~\cite{TODO}, which is
-based on the programming language LISP~\cite{TODO}. PDDL is a very rich language with many features, however, we
+Planning problems are modeled using the Planning Domain Definition Language (PDDL)~\cite{haslumIntroductionPlanningDomain2019a}, which is
+based on the programming language LISP~\cite{lisp86}. PDDL is a very rich language with many features, however, we
 will only require a small subset of it which we will describe below.
 
 The basic building blocks of PDDL are \emph{Objects} and \emph{Types}. Each object is of a certain
@@ -124,7 +130,7 @@ In PDDL we would express this using the following lines:
 
 \begin{verbatim}
 (:types city person - object)
-(:objects 
+(:objects
   Paris London Madrid - city
   Alice John - person
 )
@@ -143,17 +149,17 @@ we can now declare facts about our objects by substituting variables with object
 
 The last building block of PDDL that we need are operators, which can be intuitively understood as templates
 for actions. Actions change the world state by modifying the truth values of predicates. An action $a$ consists
-of a name $name(a)$, a set of preconditions $pre(a)$ and a set of effects $eff(a)$. 
+of a name $name(a)$, a set of preconditions $pre(a)$ and a set of effects $eff(a)$.
 Both preconditions and effects are sets of grounded
-predicates (predicates where all variables are substituted by objects). 
+predicates (predicates where all variables are substituted by objects).
 \begin{enumerate}
 \item Preconditions represent the predicates
 that must be true in the given world state in order to execute the action. We say that an action $a$
 is applicable in a given world state $s$ if and only if all predicates in $pre(a)$ hold true in $s$.
 \item Effects are used to update the world state after the action is executed. Positive effects are
 predicates that will become true (unless they are already true) after the action is executed. Negative
-effects are negated predicates and they become false. The state of all the other predicates that are not
-involved in the effects of the executed actions must remain unchanged.
+effects are negated predicates (wrapped in $not$) and they become false. All other predicates that are not
+involved in the effects of the executed actions remain unchanged.
 \end{enumerate}
 The following is an example of an action representing moving Alice form Madrid to Paris:
 \begin{verbatim}
@@ -202,7 +208,7 @@ all variables).
 
 When describing a planning problem in PDDL we split the description into two files: domain.pddl and problem.pddl.
 The first file, domain.pddl contains the types, predicates, and operators. The rest in written in the problem.pddl
-file. Four our moving example the domain.pddl would look like:.
+file. Four our moving example the domain.pddl would look like:
 
 \begin{verbatim}
 (define (domain moving)
@@ -239,27 +245,28 @@ and the problem.pddl would contain:
   (:goal (and
     (livesIn Alice Paris)
     (livesIn John Paris)
-  ))  
+  ))
 )
 \end{verbatim}
-The domain file file describes the general planning problem of moving people between cities, while the problem
+The domain file describes the general planning problem of moving people between cities, while the problem
 file describes the concrete problem instance of moving John and Alice from London and Madrid to Paris.
 An automated planner would now take these two files and find a plan, which in this case would consist of two
 actions: \verb _move-alice-madrid-paris_ and \verb _move-john-london-paris_.
 
 Since automated planning is very competitive research field, it is easy to find very well performing
 planning tools that are freely available on the internet. One way to choose a good planner is to look
-at the International Planning Competition website~\cite{TODO}, where state-of-the-art planners are evaluated 
+at the International Planning Competition website~\cite{ipc}, where state-of-the-art planners are evaluated
 and compared in regular time intervals.
 
 
 \subsection{Sokoban}
 
-Each Sokoban level consists of a two dimensional rectangular grid of squares that make
-up the "warehouse" (See Figure~\ref{fig-basic-level} for an example). 
+Each Sokoban level consists of a two dimensional rectangular grid of squares
+% that make up the "warehouse"
+(See Figure~\ref{fig-basic-level} for an example).
 If a square contains nothing it is called a floor. Otherwise it is occupied by
 one of the following entities (see Figure~\ref{fig-tiles}):
-
+\vspace{-3pt}
 \begin{itemize}
 \item \emph{Wall.} Walls make up the basic outline of each level. They cannot be
   moved and nothing else can be on a square occupied by a wall. A legal level is
@@ -281,7 +288,7 @@ one of the following entities (see Figure~\ref{fig-tiles}):
 \begin{figure}
 \centering
 \w\e\x\e\g\e\p\n
-\caption{The four kinds of tiles that make up a Sokoban warehouse: Wall, Box, Goal, and Worker (from left to right).}.
+\caption{The four kinds of tiles that make up a Sokoban warehouse: Wall, Box, Goal, and Worker (from left to right).}
 \label{fig-tiles}
 \end{figure}
 
@@ -291,8 +298,8 @@ one of the following entities (see Figure~\ref{fig-tiles}):
 \w\w\w\w\w\w\e\w\w\w\w\w\w\n
 \w\p\e\x\g\w\e\w\e\e\p\h\w\n
 \w\w\w\w\w\w\e\w\w\w\w\w\w\n
-\caption{A simple Sokoban level in its initial (left) and solved (right) state. 
-The solution to this level consists of two steps: MOVE-RIGHT and PUSH-RIGHT.}.
+\caption{A simple Sokoban level in its initial (left) and solved (right) state.
+The solution to this level consists of two steps: MOVE-RIGHT and PUSH-RIGHT.}
 \label{fig-basic-level}
 \end{figure}
 
@@ -303,7 +310,7 @@ by one square in each step.
 This movement is directly controlled by the player. The worker may be moved onto an adjacent free square.
 \item \emph{Push a box.} The worker can push a box in a certain direction if the square behind the box is free.
 To be precise, there are always three squares (A,B,C) involved in a push move. The first (A) contains the worker, the
-second (B) contains a box and the third one (C) is a free (empty or goal) square. 
+second (B) contains a box and the third one (C) is a free (empty or goal) square.
 These three squares must form a single
 line of adjacent squares. After the push is performed, the box occupies the free square (C) and the worker occupies
 the square formerly occupied by the box (B).
@@ -321,7 +328,7 @@ The first published Sokoban level generator algorithm is by Murase et al.~\cite{
 Their approach has three phases.
 \begin{enumerate}
 \item \emph{Generate random levels}. In this phase predefined templates of walls are placed randomly
-over a prototype level consisting of only walls. 
+over a prototype level consisting of only walls.
 The templates are placed such that they are connected by passages.
 Then boxes and goal tiles are placed randomly.
 \item \emph{Filter out unsolvable levels}. Phase one may generate levels that have no solution. According to the the authors this happens in around half of the cases. In this phase they use a sokoban solver to try to find a solution and filter out unsolvable levels.
@@ -334,28 +341,28 @@ step requires solving Sokoban problems, which is a PSPACE-complete problem~\cite
 
 The approach of Taylor and Parberry~\cite{taylor2011procedural} is similar to Murase et al.
 in that they first generate a random level based on placing templates of walls. Then they
-randomly place goals with boxes on them in the rooms. At this point they 
+randomly place goals with boxes on them in the rooms. At this point they
 actually have a solved Sokoban
-puzzle. In the following stage they ``unsolve'' the level by doing reverse Sokoban moves, i.e., 
-pulling boxes away from the goals. The aim of this stage is to reach a state that is far as 
+puzzle. In the following stage they ``unsolve'' the level by doing reverse Sokoban moves, i.e.,
+pulling boxes away from the goals. The aim of this stage is to reach a state that is far as
 possible from the solved state. They do this by running an iterative deepening search of the
 state space.
 
-The complex part of this algorithm is the search for the starting state in the second stage. 
-The process is very memory intensive, since all the visited states have to be kept in 
-memory in order to avoid looping. On the other hand, the algorithm has the anytime property, i.e., it 
+The complex part of this algorithm is the search for the starting state in the second stage.
+The process is very memory intensive, since all the visited states have to be kept in
+memory in order to avoid looping. On the other hand, the algorithm has the anytime property, i.e., it
 can be stopped at any time to return a valid solution, however, letting it run longer will yield
 a better solution.
 
 In \cite{taylor2015attention} an auditory Stroop test was performed to compare the engagement of
-players while playing hand-crafted Sokoban levels against levels generated by the approach of 
+players while playing hand-crafted Sokoban levels against levels generated by the approach of
 Taylor and Parberry~\cite{taylor2011procedural}. The experiment showed that players found
 procedurally generated levels equally interesting to hand-crafted levels. This demonstrates
 that there is entertainment value in procedurally generated puzzles.
 
 Kartal et al.~\cite{kartal2016data} propose a Monte Carlo tree search (MCTS) based Sokoban level
 generator. They formulate puzzle generation as an MCTS optimization problem such that the puzzles
-are generated through simulated game play. The search process starts with a level full of walls except
+are generated through simulated gameplay. The search process starts with a level full of walls except
 for one tile, which contains the player in its start position. The following actions are possible at each
 node of the search tree:
 \begin{enumerate}
@@ -363,9 +370,9 @@ node of the search tree:
 adjacent to empty tiles they can ensure that no unreachable rooms are generated.
 \item \emph{Place a Box.} Choose an empty tile and put a box there.
 \item \emph{Freeze the Level.} With this action the search is changed to play mode. Removing walls and placing
-boxes is not allowed after this action. The current positions of walls, boxes and the player constitute 
+boxes is not allowed after this action. The current positions of walls, boxes and the player constitute
 the starting state of the level (without any goal positions, they will be defined later).
-\item \emph{Move the Player.} Simulate play by executing legal moves of the player, i.e., walking 
+\item \emph{Move the Player.} Simulate play by executing legal moves of the player, i.e., walking
 around and pushing boxes.
 \item \emph{Evaluate the Level.} This is the final action of each search path. The current positions of the boxes
 are declared to be the goal locations and the quality of the generated level is estimated based on data driven
@@ -374,7 +381,7 @@ evaluation functions.
 
 Similarly to the previously presented method, this generator also has the anytime property. It is capable of
 producing a wide variety of levels thanks to its stochastic nature. Nevertheless, like all the presented approaches,
-it has its limitations and the generation of large puzzles remains a bottleneck as the 
+it has its limitations and the generation of large puzzles remains a bottleneck as the
 number of possible level designs grows exponentially.
 
 An up-to-date survey on procedural puzzle generation~\cite{de2019procedural} gives an overview
@@ -389,7 +396,7 @@ level solving.
 \subsection{Sokoban Solving as Planning}
 Using automated planning to solve Sokoban is not a new idea by any means. Actually, Sokoban is one of the
 standard benchmark problems used to evaluate new planning algorithms and tools in many academic papers
-and the international planning competition~\cite{TODO}. Nevertheless, in order to keep this paper self-contained,
+and the international planning competition~\cite{ipc}. Nevertheless, in order to keep this paper self-contained,
 we will present a simple PDDL encoding of Sokoban in this Subsection.
 
 To encode Sokoban solving we will only require one kind of objects -- squares. We will have one
@@ -414,7 +421,7 @@ Fist, we will describe the move-up operator:
   )
   :effect (and
     (not (worker_at ?from))
-    (worker_at ?to)    
+    (worker_at ?to)
   )
 )
 \end{verbatim}
@@ -434,7 +441,7 @@ Next we describe the push-up operator:
   )
   :effect (and
     (not (worker_at ?from))
-    (worker_at ?to)    
+    (worker_at ?to)
     (not (box_at ?to))
     (box_at ?box_to)
   )
@@ -490,20 +497,26 @@ An example of a Sokoban level and its encoding in given on Figure~\ref{fig-solve
 \end{figure}
 
 \subsection{Level Creation as Planning}
-As we already mentioned in the introduction, our generator is meant to assist a human designer and not
-just generate fully random levels (as is the case in the related work presented in Section~\ref{sec-related}).
-Therefore we start with a partially built level that must already contain the outer walls of the puzzle (the
-border that encloses the puzzle) and all the goal positions. However, additional walls, boxes and even the 
-worker position may be defined. The designer must then specify which of the remaining free squares may contain
-a wall, a box, a worker, or some combination of the three. The designer must also declare how many additional
-walls and boxes should be added to the puzzle. If there is no worker position specified in the input then
+As we already mentioned in the introduction, our generator is meant to assist a
+human designer and not just generate fully random levels (as is the case in the
+related work presented in Section~\ref{sec-related}). Therefore we allow the
+user to specify the size of the puzzle by defining the outer walls. The goal
+positions are also set by the designer.
+% Therefore we start with a partially built level that must already contain the outer walls of the puzzle (the
+% border that encloses the puzzle) and all the goal positions. However, additional walls, boxes and even the
+Additional walls, boxes and even the
+worker position may be defined as well. Lastly, the designer specifies which of the remaining free squares may contain
+a wall, a box, a worker, or some combination of the three. The last thing to define
+is the number of walls and boxes to be added to the puzzle.
+If no worker position has been specified in the input then
 the worker will be added automatically. We will refer to this input as a \emph{level template}.
 Figure~\ref{fig-input} contains an example of a level template, the
 corresponding starting puzzle and final puzzle.
 
 \begin{figure}
+% p sokogen 1 2 0   // this line means we want to add 1 wall and 2 boxes
 \begin{verbatim}
-p sokogen 1 2 0   // this line means we want to add 1 wall and 2 boxes
+p sokogen 1 2 0   // add 1 wall and 2 boxes, 0 minimum pushes (see end of section)
 ####              // symbols: # - wall             $ - box
 #2.#              //          @ - worker           . - goal
 #00###            //          + - worker on goal   * - box on goal
@@ -526,7 +539,7 @@ and the final solvable level (down right).}
 \label{fig-input}
 \end{figure}
 
-To transform a level template into solvable level will be task of the automated planner. In order to do this
+Transforming a level template into a solvable level will be task of the automated planner. In order to do this
 we must model the problem in PDDL. The PDDL model is an extension of the model used for solving Sokoban puzzles
 that we described in the previous Subsection. We will add four new operators:
 \begin{enumerate}
@@ -535,20 +548,20 @@ according to the level template.
 \item \emph{Add box.} Like the "add wall" operator, but for adding a box.
 \item \emph{Add worker.} Like the previous two but adds the worker.
 \item \emph{Start playing.} This operator means that we transition from the level creation phase to the playing
-phase. No more walls, boxes or workers can be added after this action is executed. Move and push actions
+phase of the planning problem. No more walls, boxes or workers can be added after this action is executed. Move and push actions
 are not allowed to happen before this action.
 \end{enumerate}
 
 We also need to modify the goal conditions. For Sokoban solving we only required that all goal positions
 contain a box. Now we also require that the specified number of walls and boxes was placed. To model
 this we introduce two new types: wall and box. Then we declare as many objects of both types as
-we need to add according to the level template. For example, if need to add 3 walls and 5 boxes, then
-we declare 3 objects of type wall and 5 objects of type box. Then with the help of two new predicates:
+we need to add according to the level template. For example, if we need to add 3 walls and 5 boxes, then
+3 objects of type wall and 5 objects of type box are declared. Then with the help of two new predicates:
 \verb *(wall_placed ?w - wall)* and \verb *(box_placed ?b - box)* we can encode that all the additional walls
 and boxes have been placed.
 
 In the initial state we must specify which squares may contain additional walls, boxes, or the player.
-For this purpose we introduce three new predicates: \verb *(opt_wall ?s - square)* for walls, 
+For this purpose we introduce three new predicates: \verb *(opt_wall ?s - square)* for walls,
 \verb *(opt_box ?s - square)* for boxes, and \verb *(opt_worker ?s - square)* for the workers.
 
 To implement the \emph{start playing} operator we will define two new predicates:
@@ -563,7 +576,7 @@ with operators to place walls and boxes.
 (:action place_wall          (:action place_box
   :parameters(                 :parameters(
     ?w - wall ?to - square       ?b - box ?to - square
-  )                            ) 
+  )                            )
   :precondition(and            :precondition(and
     (making_level)               (making_level)
     (opt_wall ?to)               (opt_box ?to)
@@ -603,7 +616,7 @@ The predicate \verb *(playing)* must be added to preconditions. With this we hav
 complete encoding of the Sokoban puzzle generation into PDDL. However, there is one small issue we need to
 address.
 
-Planners always try to find short plans. This has an unpleasant consequence for our problem. 
+Planners always try to find short plans. This has an unpleasant consequence for our problem.
 The planner is motivated to
 place the walls and boxes in such a way, that the generated puzzle can be solved with as few moves and
 pushes as possible. This means, that the generated levels tend to be very easy to solve.
@@ -614,8 +627,9 @@ This is modeled by adding a counter to the push operators, that is increased wit
 Then in the goal conditions we can require that the counter reaches the required value.
 
 \subsection{Comparison to related work}
-Our method bears the most similarity to the approach of Kartal et al.~\cite{kartal2016data} (see Section~\ref{sec-related}. They formulate the puzzle generation as an MCTS optimization problem, while me model it as a planning
-problem. They start with a level that contains the worker and is otherwise full of walls and then remove some 
+Our method bears the most similarity to the approach of Kartal et al.~\cite{kartal2016data} (see Section~\ref{sec-related}.
+They formulate the puzzle generation as an MCTS optimization problem, while we model it as a planning
+problem. They start with a level that contains the worker and is otherwise full of walls and then remove some
 walls and add some boxes. We start with
 a partially built level that already contains all the goals and then we add additional walls, boxes and the worker.
 Then both approaches have a special action that transitions the search into the playing mode.
@@ -624,52 +638,6 @@ In Kartal et al.~\cite{kartal2016data} random moves are executed for some time a
 declared to be the goal state.
 
 \section{Experimental Evaluation}
-\renewcommand{\sokoimg}[1]{\includegraphics[scale=0.9]{#1} \hspace{-0.35em}}
-%\renewcommand{\n}{\\
-%\vspace{-0.15em}}
-
-
-\begin{figure}
-\centering
-\e\n
-\w\w\w\w\w\w\w\e \w\w\w\w\w\e\e\e\e\e\e \w\w\w\w\w\e\e\w\w\w\w\w\n
-\w\g\g\e\g\g\w\e \w\g\g\g\w\e\e\e\e\e\e \w\g\g\g\w\e\e\w\g\g\g\w\n
-\w\e\e\g\e\e\w\e \w\g\e\g\w\e\e\e\e\e\e \w\g\e\g\w\e\e\w\g\e\g\w\n
-\w\e\e\g\e\e\w\e \w\e\e\e\w\w\w\w\w\w\e \w\e\e\e\w\w\w\w\e\e\e\w\n
-\w\g\g\e\g\g\w\e \w\g\e\e\e\e\e\e\g\w\e \w\g\e\e\e\e\e\e\e\e\g\w\n
-\w\w\w\w\w\w\w\e \w\g\g\e\e\g\g\g\g\w\e \w\g\g\e\e\g\g\g\g\g\g\w\n
-\e\e\e\e\e\e\e\e \w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\n
-\e\n
-\w\w\w\w\w\e\e\w\w\w\w\w\e \e\e\e\w\w\w\w\e\w\w\w\w\e\e\e\n
-\w\g\g\g\w\e\e\w\g\g\g\w\e \e\e\e\w\g\g\w\e\w\g\g\w\e\e\e\n
-\w\e\e\e\w\w\w\w\e\e\e\w\e \w\w\w\w\e\e\w\w\w\e\e\w\w\w\w\n
-\w\e\e\e\e\g\g\e\e\e\e\w\e \w\g\e\e\e\e\e\e\e\e\e\e\e\g\w\n
-\w\e\e\e\w\w\w\w\e\e\e\w\e \w\g\e\e\e\e\e\e\e\e\e\e\e\g\w\n
-\w\g\g\g\w\e\e\w\g\g\g\w\e \w\w\w\w\e\e\w\w\w\e\e\w\w\w\w\n
-\w\w\w\w\w\e\e\w\w\w\w\w\e \e\e\e\w\g\g\w\e\w\g\g\w\e\e\e\n
-\e\e\e\e\e\e\e\e\e\e\e\e\e \e\e\e\w\w\w\w\e\w\w\w\w\e\e\e\n
-\e\n
-\e\e\e\w\w\w\w\w\e\e\e\e \w\w\w\w\w\e\e\e\e \w\w\w\w\w\w\w\w\w\w\n
-\e\e\e\w\g\g\g\w\e\e\e\e \w\g\g\g\w\e\e\e\e \w\g\g\g\e\e\e\g\g\w\n
-\w\w\w\w\e\e\e\w\w\w\w\e \w\g\e\g\w\e\e\e\e \w\g\e\e\e\e\e\e\g\w\n
-\w\g\e\e\e\w\e\e\e\g\w\e \w\e\w\e\w\w\w\w\e \w\w\w\w\e\e\w\w\w\w\n
-\w\g\e\e\e\w\e\e\e\g\w\e \w\e\w\e\e\e\g\w\e \e\e\e\w\g\g\w\e\e\e\n
-\w\w\w\w\e\e\e\w\w\w\w\e \w\g\g\e\e\g\g\w\e \w\w\w\w\e\e\w\w\w\w\n
-\e\e\e\w\g\g\g\w\e\e\e\e \w\w\w\w\w\w\w\w\e \w\g\e\e\e\e\e\e\g\w\n
-\e\e\e\w\w\w\w\w\e\e\e\e \e\e\e\e\e\e\e\e\e \w\g\g\g\e\e\e\g\g\w\n
-\e\e\e\e\e\e\e\e\e\e\e\e \e\e\e\e\e\e\e\e\e \w\w\w\w\w\w\w\w\w\w\n
-\e\n
-\w\w\w\w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\w\w\n
-\w\g\g\g\e\g\g\g\e\e\g\g\w\e \w\g\g\g\e\e\g\g\e\e\g\g\g\w\n
-\w\g\e\e\e\e\e\e\e\e\e\g\w\e \w\g\e\e\e\e\e\e\e\e\e\e\g\w\n
-\w\w\w\w\e\w\w\w\e\w\w\w\w\e \w\w\w\w\e\e\w\w\e\e\w\w\w\w\n
-\e\e\e\w\e\w\e\w\e\w\e\e\e\e \e\e\e\w\e\e\w\w\e\e\w\e\e\e\n
-\w\w\w\w\e\w\w\w\e\w\w\w\w\e \w\w\w\w\e\e\w\w\e\e\w\w\w\w\n
-\w\g\e\e\e\e\e\e\e\e\e\g\w\e \w\g\e\e\e\e\w\w\e\e\e\e\g\w\n
-\w\g\g\g\e\g\g\g\e\e\g\g\w\e \w\g\g\g\g\g\w\w\g\g\g\g\g\w\n
-\w\w\w\w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\w\w\n
-\caption{lol}
-\end{figure}
 how does it scale?
 
 what is the largest level we can create?
