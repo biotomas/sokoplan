@@ -119,6 +119,66 @@
   author = {Feng, Dieqiao and Gomes, Carla P and Selman, Bart},
   pages = {12},
   abstract = {In recent years, we have witnessed tremendous progress in deep reinforcement learning (RL) for tasks such as Go, Chess, video games, and robot control. Nevertheless, other combinatorial domains, such as AI planning, still pose considerable challenges for RL approaches. The key difficulty in those domains is that a positive reward signal becomes exponentially rare as the minimal solution length increases. So, an RL approach loses its training signal. There has been promising recent progress by using a curriculum-driven learning approach that is designed to solve a single hard instance. We present a novel automated curriculum approach that dynamically selects from a pool of unlabeled training instances of varying task complexity guided by our difficulty quantum momentum strategy. We show how the smoothness of the task hardness impacts the final learning results. In particular, as the size of the instance pool increases, the ``hardness gap'' decreases, which facilitates a smoother automated curriculum based learning process. Our automated curriculum approach dramatically improves upon the previous approaches. We show our results on Sokoban, which is a traditional PSPACE-complete planning problem and presents a great challenge even for specialized solvers. Our RL agent can solve hard instances that are far out of reach for any previous state-of-the-art Sokoban solver. In particular, our approach can uncover plans that require hundreds of steps, while the best previous search methods would take many years of computing time to solve such instances. In addition, we show that we can further boost the RL performance with an intricate coupling of our automated curriculum approach with a curiosity-driven search strategy and a graph neural net representation.},
-  file = {/home/froleyks/Zotero/storage/WCGM7JF8/Feng et al. - A Novel Automated Curriculum Strategy to Solve Har.pdf},
   language = {en},
+}
+
+@inproceedings{junghanns98,
+  title={Sokoban: Evaluating standard single-agent search techniques in the presence of deadlock},
+  author={Junghanns, Andreas and Schaeffer, Jonathan},
+  booktitle={Conference of the Canadian Society for Computational Studies of Intelligence},
+  pages={1--15},
+  year={1998},
+  organization={Springer}
+}
+
+@inproceedings{botea03,
+  title={Using abstraction for planning in sokoban},
+  author={Botea, Adi and M{\"u}ller, Martin and Schaeffer, Jonathan},
+  booktitle={International Conference on Computers and Games},
+  pages={360--375},
+  year={2002},
+  organization={Springer}
+}
+
+@inproceedings{froleyksUsingAlgorithmPortfolio2017,
+  title = {Using an {{Algorithm Portfolio}} to {{Solve Sokoban}}},
+  booktitle = {Tenth {{Annual Symposium}} on {{Combinatorial Search}}},
+  author = {Froleyks, Nils and Balyo, Tomas},
+  year = {2017},
+  month = {jun},
+  abstract = {The game of Sokoban is an interesting platform for algorithm research. It is hard for humans and computers alike. Even small levels can take a lot of computation for all known algorithms. In this paper we will describe how a search based Sokoban solver can be structured and which algorithms can be used to realize each critical part. We implement a variety of those, construct a number of different solvers and combine them into an algorithm portfolio. The solver we construct this way can outperform existing solvers when run in parallel, that is, our solver with 16 processors outperforms the previous sequential solvers.},
+  language = {en},
+}
+
+@article{jaruvsek2010human,
+  title = {Human Problem Solving: {{Sokoban}} Case Study},
+  author = {Jaru{\v s}ek, Petr and Pel{\'a}nek, Radek},
+  year = {2010},
+  journal = {Technick\'a zpr\'ava, Fakulta informatiky, Masarykova univerzita, Brno},
+}
+
+@inproceedings{ashlockEvolutionAutomaticAssessment2010,
+  title = {Evolution for Automatic Assessment of the Difficulty of Sokoban Boards},
+  booktitle = {{{IEEE Congress}} on {{Evolutionary Computation}}},
+  author = {Ashlock, Daniel and Schonfeld, Justin},
+  year = {2010},
+  month = {jul},
+  pages = {1--8},
+  issn = {1941-0026},
+  doi = {10.1109/CEC.2010.5586239},
+  abstract = {Many games have a collection of boards with the difficulty of an instance of the game determined by the starting configuration of the board. Correctly rating the difficulty of the boards is somewhat haphazard and required either a remarkable level of understanding of the game or a good deal of play-testing. In this study we explore evolutionary algorithms as a tool to automatically grade the difficulty of boards for a version of the game sokoban. Mean time-to-solution by an evolutionary algorithm and number of failures to solve a board are used as a surrogate for the difficulty of a board. Initial testing with a simple string-based representation, giving a sequence of moves for the sokoban agent, provided very little signal; it usually failed. Two other representations, based on a reactive linear genetic programming structure called an ISAc list, generated useful hardness-classification information for both hardness surrogates. These two representations differ in that one uses a randomly initialized population of ISAc lists while the other initializes populations with competent agents pre-trained on random collections of sokoban boards. The study encompasses four hardness surrogates: probability-of-failure and mean time-to-solution for each of these two representations. All four are found to generate similar information about board hardness, but probability-of-failure with pre-evolved agents is found to be faster to compute and to have a clearer meaning than the other three board-hardness surrogates.},
+  keywords = {Arrays,Evolutionary computation,Games,Genetic programming,Probability,Sensors},
+}
+
+@inproceedings{vankreveldAutomatedPuzzleDifficulty2015,
+  title = {Automated Puzzle Difficulty Estimation},
+  booktitle = {2015 {{IEEE Conference}} on {{Computational Intelligence}} and {{Games}} ({{CIG}})},
+  author = {{van Kreveld}, Marc and L{\"o}ffler, Maarten and Mutser, Paul},
+  year = {2015},
+  month = {aug},
+  pages = {415--422},
+  issn = {2325-4289},
+  doi = {10.1109/CIG.2015.7317913},
+  abstract = {We introduce a method for automatically rating the difficulty of puzzle game levels. Our method takes multiple aspects of the levels of these games, such as level size, and combines these into a difficulty function. It can simply be adapted to most puzzle games, and we test it on three different ones: Flow, Lazors and Move. We conducted a user study to discover how difficult players find the levels of a set and use this data to train the difficulty function to match the user-provided ratings. Our experiments show that the difficulty function is capable of rating levels with an average error of approximately one point in Lazors and Move, and less than half a point in Flow, on a difficulty scale of 1-10.},
+  keywords = {Color,Correlation,Estimation,Games,Linear programming,Rocks,Time measurement},
 }

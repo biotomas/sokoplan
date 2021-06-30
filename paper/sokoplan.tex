@@ -322,9 +322,22 @@ for obvious reasons.
 
 \section{Related Work}
 \label{sec-related}
-TODO list and reference some Sokoban solvers
+Most academic work on Sokoban focused on developing efficient solvers that find short, but not necessarily optimal solutions. Most are based on performing a heuristic search on the state space of the Sokoban puzzle. To make the search efficient multiple domain specific enhancements are used. Most notably, heuristics that recognize if the current state is already unsolvable and abort the branch of the search accordingly. The first solver to implement these techniques was \emph{Rolling Stone}~\cite{junghanns98} followed by
+\emph{JSoko}\footnote{\url{https://www.sokoban-online.de/}},
+\emph{YASS}\footnote{\url{https://sourceforge.net/projects/sokobanyasc/}},
+\emph{Takaken}\footnote{\url{http://www.ic-net.or.jp/home/takaken/e/soko/index.html}} and
+\emph{GroupEffort}\cite{froleyksUsingAlgorithmPortfolio2017}.
+Botea et al.~\cite{botea03} used automatic planning but instead of a simple encoding to planning (see Section~\ref{sec-asPlanning}) they decomposed the warehouse into a set of different rooms connected by tunnels. A plan that successfully moves the boxes between the rooms is translated to actual box pushes and player movements afterwards.
 
-TODO list and reference some Sokoban level estimators
+Another topic related to our work was investigated more recently. Assessing the
+difficulty of a particular Sokoban level is important for the design of new levels.
+Humans enjoy problem solving, but only if the problem is of adequate difficulty.
+Jaru{\v s}ek et al.~\cite{jaruvsek2010human}
+conducted an empirical study on how easily humans solve a set of Sokoban levels. They collected over 700 hours of test data from different participants to establish a ground truth and presented a set of nontrivial metrics to predict the collected data.
+Ashlock et al.~\cite{ashlockEvolutionAutomaticAssessment2010}
+observed artificial agents that were the result of an evolutionary learning process on randomly generated Sokoban levels. Due to the limited capabilities of the agents the metrics they present are not useful to predict the difficulty of harder levels.
+Van Kreveld et al.~\cite{vankreveldAutomatedPuzzleDifficulty2015}
+developed a metric that is not specific to Sokoban but supposed to be generic enough to capture the difficulty of different grid-based puzzle games.
 
 The first published Sokoban level generator algorithm is by Murase et al.~\cite{murase1996automatic}.
 Their approach has three phases.
@@ -395,7 +408,7 @@ This means that our only task is to express the problem of level generation in P
 by the planning tool. We will formulate the problem of Sokoban level generation as an extension of Sokoban
 level solving.
 
-\subsection{Sokoban Solving as Planning}
+\subsection{Sokoban Solving as Planning} \label{sec-asPlanning}
 Using automated planning to solve Sokoban is not a new idea by any means. Actually, Sokoban is one of the
 standard benchmark problems used to evaluate new planning algorithms and tools in many academic papers
 and the international planning competition~\cite{ipc}. Nevertheless, in order to keep this paper self-contained,
@@ -634,7 +647,7 @@ The repository also contains the tool that generates the PDDL problem files give
 
 
 \subsection{Comparison to related work}
-Our method bears the most similarity to the approach of Kartal et al.~\cite{kartal2016data} (see Section~\ref{sec-related}.
+Our method bears the most similarity to the approach of Kartal et al.~\cite{kartal2016data} (see Section~\ref{sec-related}).
 They formulate the puzzle generation as an MCTS optimization problem, while we model it as a planning
 problem. They start with a level that contains the worker and is otherwise full of walls and then remove some
 walls and add some boxes. We start with
