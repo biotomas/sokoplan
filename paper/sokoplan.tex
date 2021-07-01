@@ -140,7 +140,7 @@ In PDDL we can refer to objects using variables. Variable names always start wit
 variable has a type. For example a variable "c" of the type "city" would be declared as: \verb _(?c - city)_.
 
 Variables appear in \emph{Predicates}, which are atomic statements that are used to express certain
-conditions. For example, a predicate called "livesIn" could could have two parameters, one of the type "person"
+conditions. For example, a predicate called "livesIn" could have two parameters, one of the type "person"
 and one of the type "city". In PDLL we would declare this predicate as \verb _(livesIn ?p - person ?c - city)_
 and it would mean that an object of type "person" lives in an object of type "city". Using the predicate
 we can now declare facts about our objects by substituting variables with objects of the proper type, for example:
@@ -341,7 +341,7 @@ developed a metric that is not specific to Sokoban but supposed to be generic en
 The first published Sokoban level generator algorithm is by Murase et al.~\cite{murase1996automatic}.
 Their approach has three phases.
 \begin{enumerate}
-\item \emph{Generate random levels}. In this phase predefined templates of walls are placed randomly
+\item \emph{Generate random levels}. In this phase predefined templates of rooms are placed randomly
 over a prototype level consisting of only walls.
 The templates are placed such that they are connected by passages.
 Then boxes and goal tiles are placed randomly.
@@ -386,7 +386,7 @@ adjacent to empty tiles they can ensure that no unreachable rooms are generated.
 \item \emph{Freeze the Level.} With this action the search is changed to play mode. Removing walls and placing
 boxes is not allowed after this action. The current positions of walls, boxes and the player constitute
 the starting state of the level (without any goal positions, they will be defined later).
-\item \emph{Move the Player.} Simulate play by executing legal moves of the player, i.e., walking
+\item \emph{Move the Player.} Simulate play by executing random legal moves of the player, i.e., walking
 around and pushing boxes.
 \item \emph{Evaluate the Level.} This is the final action of each search path. The current positions of the boxes
 are declared to be the goal locations and the quality of the generated level is estimated based on data driven
@@ -530,7 +530,7 @@ corresponding starting puzzle and final puzzle.
 \begin{figure}
 % p sokogen 1 2 0   // this line means we want to add 1 wall and 2 boxes
 \begin{verbatim}
-p sokogen 1 2 0   // add 1 wall and 2 boxes, do at lest 0 pushes
+p sokogen 1 2 0   // add 1 wall and 2 boxes, do at least 0 pushes
 ####              // symbols: # - wall             $ - box
 #2.#              //          @ - worker           . - goal
 #00###            //          + - worker on goal   * - box on goal
@@ -548,7 +548,7 @@ p sokogen 1 2 0   // add 1 wall and 2 boxes, do at lest 0 pushes
 \w\e\e\w\w\w\e\e\w\e\e\w\w\w\n
 \w\w\w\w\e\e\e\e\w\w\w\w\e\e\n
 
-\caption{An example input file for our Sokoban puzzle generator (top), the starting puzzle (down left)
+\caption{A level template file for our Sokoban puzzle generator (top), the starting puzzle (down left)
 and the final solvable level (down right).}
 \label{fig-input}
 \end{figure}
@@ -576,7 +576,7 @@ and boxes have been placed.
 
 In the initial state we must specify which squares may contain additional walls, boxes, or the player.
 For this purpose we introduce three new predicates: \verb *(opt_wall ?s - square)* for walls,
-\verb *(opt_box ?s - square)* for boxes, and \verb *(opt_worker ?s - square)* for the workers.
+\verb *(opt_box ?s - square)* for boxes, and \verb *(opt_worker ?s - square)* for the worker.
 
 To implement the \emph{start playing} operator we will define two new predicates:
 \verb *(making_level)* and \verb *(playing)* to represent the current phase of the puzzle generation.
@@ -607,7 +607,7 @@ with operators to place walls and boxes.
 The "place worker" and "start playing" are defined next. Note, that "place worker" also changes the phase
 to playing. This way we can ensure that the worker is added last and only once. Thanks to this property the
 operators to place the walls and the boxes do not need to check whether a worker has been placed on the square
-the wish to place their item.
+where they wish to place their item.
 
 \begin{verbatim}
 (:action place_player_and_start   (:action start_play
@@ -714,7 +714,7 @@ name of the base templates are (top left to bottom right): O, L, U, H, XX, X, B,
 \end{figure}
 
 Our Sokoban puzzle generation tool is available online at GitHub\footnote{\url{https://github.com/biotomas/sokoplan}}.
-The repository contains everything you need build and use our tool and also to replicate
+The repository contains everything you need to build and use our tool and also to replicate
 the experimental evaluation we present in this section.
 
 \subsection{Setup}
@@ -750,6 +750,13 @@ base temp.    p sokogen 4 4 4  // objective:
 #..  ..#      #. 00. #         //     . - goal     
 ########      ########         //     0 - add any object
 \end{verbatim}
+
+Admittedly, these benchmarks are not exactly like the level templates a human designed would use. A human
+designer would start with a level template and then modify it after seeing the level produced by the tool.
+They would perform several iterations of these steps until a satisfactory level has been found. Nevertheless,
+we used the approach described above since we needed to generate a large number of templates of various
+sizes and complexity levels. However, we believe the generated templates are still representative enough
+to perform a meaningful experimental evaluation of our tool.
 
 \subsection{Experimental Results}
 \begin{table}[t]
