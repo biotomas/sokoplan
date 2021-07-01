@@ -98,12 +98,12 @@ We will demonstrate our technique on the example of Sokoban puzzles, since this 
 and well studied game. Nevertheless, the technique can be used for any puzzle game that satisfies
 the following conditions:
 \begin{itemize}
-\item Single player -- the game is played by a single player. There may exist helpful or adversary agents
+\item \emph{Single player.} The game is played by a single player. There may exist helpful or adversary agents
 in the game as long as their behavior is fully deterministic and specified by simple rules.
-\item Finite and discrete game world -- each game state can be fully described with finitely many
+\item \emph{Finite and discrete game world.} Each game state can be fully described with finitely many
  finite domain variables.
-\item Deterministic gameplay -- random events or random outcomes of player actions are not allowed.
-\item Full observability -- there are no hidden or unknown elements that influence the gameplay.
+\item \emph{Deterministic gameplay.} Random events or random outcomes of player actions are not allowed.
+\item \emph{Full observability.} There are no hidden or unknown elements that influence the gameplay.
 \end{itemize}
 
 The rest of the paper is organized as follows. In the next section we will provide the preliminary definitions
@@ -202,8 +202,8 @@ elements:
 \item set of operators
 \item list of all the objects in the problem together with their types
 \item the initial state of the world in the form of grounded predicates (predicates with objects substituted for
-all variables).
-\item the goal conditions in the form of grounded predicates.
+all variables)
+\item the goal conditions in the form of grounded predicates
 \end{enumerate}
 
 When describing a planning problem in PDDL we split the description into two files: domain.pddl and problem.pddl.
@@ -253,7 +253,7 @@ file describes the concrete problem instance of moving John and Alice from Londo
 An automated planner would now take these two files and find a plan, which in this case would consist of two
 actions: \verb _move-alice-madrid-paris_ and \verb _move-john-london-paris_.
 
-Since automated planning is very competitive research field, it is easy to find very well performing
+Since automated planning is a very competitive research field, it is easy to find well performing
 planning tools that are freely available on the internet. One way to choose a good planner is to look
 at the International Planning Competition website~\cite{ipc}, where state-of-the-art planners are evaluated
 and compared in regular time intervals.
@@ -263,7 +263,7 @@ and compared in regular time intervals.
 
 Each Sokoban level consists of a two dimensional rectangular grid of squares
 % that make up the "warehouse"
-(See Figure~\ref{fig-basic-level} for an example).
+(see Figure~\ref{fig-basic-level} for an example).
 If a square contains nothing it is called a floor. Otherwise it is occupied by
 one of the following entities (see Figure~\ref{fig-tiles}):
 \vspace{-3pt}
@@ -315,7 +315,7 @@ the square formerly occupied by the box (B).
 
 The goal of the game is to find a \emph{solution}, which
 is a sequence of moves and pushes. Executing a solution leads to every box
-being on a goal. It does not matter which box ends up on which goal.
+ending up on a goal. It does not matter which box ends up on which goal.
 A level may have no solution. Such a level is undesirable and should not be presented to a human player
 for obvious reasons.
 
@@ -329,10 +329,10 @@ Most academic work on Sokoban focused on developing efficient solvers that find 
 Botea et al.~\cite{botea03} used automatic planning but instead of a simple encoding to planning (see Section~\ref{sec-asPlanning}) they decomposed the warehouse into a set of different rooms connected by tunnels. A plan that successfully moves the boxes between the rooms is translated to actual box pushes and player movements afterwards.
 
 Another topic related to our work was investigated more recently. Assessing the
-difficulty of a particular Sokoban level is important for the design of new levels.
+difficulty of a given level is important for designing new ones.
 Humans enjoy problem solving, but only if the problem is of adequate difficulty.
 Jaru{\v s}ek et al.~\cite{jaruvsek2010human}
-conducted an empirical study on how easily humans solve a set of Sokoban levels. They collected over 700 hours of test data from different participants to establish a ground truth and presented a set of nontrivial metrics to predict the collected data.
+conducted an empirical study on how easily humans solve a set of Sokoban levels. They collected over 700 hours of test data from different participants to establish a ground truth and presented a set of nontrivial metrics trying to predict the collected data.
 Ashlock et al.~\cite{ashlockEvolutionAutomaticAssessment2010}
 observed artificial agents that were the result of an evolutionary learning process on randomly generated Sokoban levels. Due to the limited capabilities of the agents the metrics they present are not useful to predict the difficulty of harder levels.
 Van Kreveld et al.~\cite{vankreveldAutomatedPuzzleDifficulty2015}
