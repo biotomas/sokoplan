@@ -28,18 +28,18 @@
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
-\author{Tom\'a\v{s} Balyo\inst{1} \and
-Nils Froleyks\inst{2}}
+%\author{Tom\'a\v{s} Balyo\inst{1} \and
+%Nils Froleyks\inst{2}}
 %
-\authorrunning{Tom\'a\v{s} Balyo, Nils Froleyks}
+%\authorrunning{Tom\'a\v{s} Balyo, Nils Froleyks}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{CAS Software AG, Karlsruhe, Germany\\
-\email{tomas.balyo@cas.de}
-\and
-Johannes Kepler University, Linz, Austria\\
-\email{nils.froleyks@jku.at}}
+%\institute{CAS Software AG, Karlsruhe, Germany\\
+%\email{tomas.balyo@cas.de}
+%\and
+%Johannes Kepler University, Linz, Austria\\
+%\email{nils.froleyks@jku.at}}
 %
 \maketitle              % typeset the header of the contribution
 
@@ -109,8 +109,7 @@ in the game as long as their behavior is fully deterministic and specified by si
 The rest of the paper is organized as follows. In the next section we will provide the preliminary definitions
 of automated planning and the rules of Sokoban. Then we will review the related work in the
 area of procedural generation of Sokoban levels. Following that we will describe our new
-method and our new tool that implements it. Finally, we will present an evaluation of our tool and show
-examples of generated levels.
+method and our new tool that implements it. Finally, we will present an evaluation of our tool.
 
 \section{Preliminaries}
 
@@ -208,7 +207,7 @@ all variables).
 \end{enumerate}
 
 When describing a planning problem in PDDL we split the description into two files: domain.pddl and problem.pddl.
-The first file, domain.pddl contains the types, predicates, and operators. The rest in written in the problem.pddl
+The first file, domain.pddl, contains the types, predicates, and operators. The rest is written in the problem.pddl
 file. Four our moving example the domain.pddl would look like:
 
 \begin{verbatim}
@@ -531,7 +530,7 @@ corresponding starting puzzle and final puzzle.
 \begin{figure}
 % p sokogen 1 2 0   // this line means we want to add 1 wall and 2 boxes
 \begin{verbatim}
-p sokogen 1 2 0   // add 1 wall and 2 boxes, 0 minimum pushes (see end of section)
+p sokogen 1 2 0   // add 1 wall and 2 boxes, do at lest 0 pushes
 ####              // symbols: # - wall             $ - box
 #2.#              //          @ - worker           . - goal
 #00###            //          + - worker on goal   * - box on goal
@@ -558,7 +557,7 @@ Transforming a level template into a solvable level will be task of the automate
 we must model the problem in PDDL. The PDDL model is an extension of the model used for solving Sokoban puzzles
 that we described in the previous Subsection. We will add four new operators:
 \begin{enumerate}
-\item \emph{Add wall.} This operator adds a wall to one of the squares that free and is allowed to contain a wall
+\item \emph{Add wall.} This operator adds a wall to one of the free squares that is allowed to contain a wall
 according to the level template.
 \item \emph{Add box.} Like the "add wall" operator, but for adding a box.
 \item \emph{Add worker.} Like the previous two but adds the worker.
@@ -709,8 +708,8 @@ improves, our puzzle generator improves with it automatically.
 \w\g\g\g\e\g\g\g\e\e\g\g\w\e \w\g\g\g\g\g\w\w\g\g\g\g\g\w\n
 \w\w\w\w\w\w\w\w\w\w\w\w\w\e \w\w\w\w\w\w\w\w\w\w\w\w\w\w\n
 %TODO uncomment
-\caption{The 10 meta templates we used to generate our 300 benchmark level templates. The
-name of the meta templates are (top left to bottom right): O, L, U, H, XX, X, B, I, II, and Pi.}
+\caption{The 10 base templates we used to generate our 300 benchmark level templates. The
+name of the base templates are (top left to bottom right): O, L, U, H, XX, X, B, I, II, and Pi.}
 \label{fig-meta-templates}
 \end{figure}
 
