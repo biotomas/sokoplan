@@ -345,7 +345,7 @@ Their approach has three phases.
 over a prototype level consisting of only walls.
 The templates are placed such that they are connected by passages.
 Then boxes and goal tiles are placed randomly.
-\item \emph{Filter out unsolvable levels}. Phase one may generate levels that have no solution. According to the the authors this happens in around half of the cases. In this phase they use a sokoban solver to try to find a solution and filter out unsolvable levels.
+\item \emph{Filter out unsolvable levels}. Phase one may generate levels that have no solution. According to the the authors this happens in around half of the cases. In this phase they use a Sokoban solver to try to find a solution and filter out unsolvable levels.
 \item \emph{Evaluation}. In this phase the levels are automatically evaluated to determine whether
 they are interesting. The evaluation is based on simple metrics such as the length of the solution, the number of changes in directions when pushing a box and the number of detours.
 \end{enumerate}
@@ -419,8 +419,8 @@ need the following predicates:
 \begin{enumerate}
 \item \verb _(above ?a ?b - square)_ meaning that square "a" is above square "b"
 \item \verb *(left_of ?a ?b - square)* meaning that square "a" is on the left side of square "b"
-\item \verb *(box_at ?a - square)* meaining that there is a box at square "a"
-\item \verb *(worker_at ?a - square)* meaining that there is the worker at square "a"
+\item \verb *(box_at ?a - square)* meaning that there is a box at square "a"
+\item \verb *(worker_at ?a - square)* meaning that there is the worker at square "a"
 \end{enumerate}
 To complete the domain description we need to specify the operators. We will need two kinds
 of operators -- move and push and we will need 4 of each for the 4 cardinal directions (up, down, left, right).
@@ -713,7 +713,7 @@ name of the base templates are (top left to bottom right): O, L, U, H, XX, X, B,
 \label{fig-meta-templates}
 \end{figure}
 
-Our Sokoban puzzle generation tool is available online at github\footnote{\url{https://github.com/biotomas/sokoplan}}.
+Our Sokoban puzzle generation tool is available online at GitHub\footnote{\url{https://github.com/biotomas/sokoplan}}.
 The repository contains everything you need build and use our tool and also to replicate
 the experimental evaluation we present in this section.
 
