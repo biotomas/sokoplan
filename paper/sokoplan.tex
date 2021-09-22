@@ -94,8 +94,8 @@ to design a system that can generate challenging solvable puzzles and intelligen
 a human puzzle designer. To our best knowledge, this is the first time, that automated planning has
 been used in this context.
 
-We will demonstrate our technique on the example of Sokoban puzzles, since this is well known
-and well studied game. Nevertheless, the technique can be used for any puzzle game that satisfies
+We will demonstrate our technique on the example of Sokoban puzzles, since the game is widely known
+and well studied. Nevertheless, the technique can be used for any puzzle game that satisfies
 the following conditions:
 \begin{itemize}
 \item \emph{Single player.} The game is played by a single player. There may exist helpful or adversary agents
@@ -208,7 +208,7 @@ all variables)
 
 When describing a planning problem in PDDL we split the description into two files: domain.pddl and problem.pddl.
 The first file, domain.pddl, contains the types, predicates, and operators. The rest is written in the problem.pddl
-file. For our moving example the domain.pddl would look like:
+file. For our moving example the domain.pddl would be:
 
 \begin{verbatim}
 (define (domain moving)
@@ -345,7 +345,7 @@ Their approach has three phases.
 over a prototype level consisting of only walls.
 The templates are placed such that they are connected by passages.
 Then boxes and goal tiles are placed randomly.
-\item \emph{Filter out unsolvable levels}. Phase one may generate levels that have no solution. According to the the authors this happens in around half of the cases. In this phase they use a Sokoban solver to try to find a solution and filter out unsolvable levels.
+\item \emph{Filter out unsolvable levels}. Phase one may generate levels that have no solution. According to the authors this happens in around half of the cases. In this phase they use a Sokoban solver to try to find a solution and filter out unsolvable levels.
 \item \emph{Evaluation}. In this phase the levels are automatically evaluated to determine whether
 they are interesting. The evaluation is based on simple metrics such as the length of the solution, the number of changes in directions when pushing a box and the number of detours.
 \end{enumerate}
@@ -640,9 +640,9 @@ parameter on the "p line" in the level template (see Figure~\ref{fig-input}).
 This is modeled by adding a counter to the push operators, that is increased with each push action.
 Then in the goal conditions we can require that the counter reaches the required value.
 
-For more details refer to the complete domain PDDL file available in project's 
+For more details refer to the complete domain PDDL file available in the project's
 repository\footnote{\url{https://github.com/biotomas/sokoplan/blob/master/SokoGen/domain.pddl}}.
-The repository also contains the tool that generates the PDDL problem files given a level template.
+The repository also contains the tool that generates the PDDL problem files from a given level template.
 
 
 \subsection{Comparison to related work}
@@ -792,14 +792,14 @@ levels. The first column contains the names of the base templates, see Figure~\r
 their definitions. The values in the second column are the number of free squares in the corresponding templates
 that can be used to place walls, boxes and the player.
 Columns 3 to 8 contain the number of solved instances within a time limit of 1 minute for each complexity level.
-The final column contains the total number of solved instances within 1 minute for across all complexity
+The final column contains the total number of solved instances within 1 minute across all complexity
 levels.}
 \label{tab-results}
 \end{table}
 
 The results of the experimental evaluation are presented in Table~\ref{tab-results}.
 Not solving a level template can either mean that it is impossible to place the given amount of walls
-and boxes such that a solvable level is created or that the planner could find in a solution in the given
+and boxes such that a solvable level is created or that the planner could not find a solution in the given
 time limit (of 1 minute). Unfortunately, in most cases, we cannot distinguish between these two scenarios,
 since planners are not very good at proving non-existence of plans.
 
@@ -819,7 +819,7 @@ generate levels of various shapes and complexities.
 We presented a method to assist human level designers to generate solvable Sokoban
 puzzles using automated planners. Our method has several advantages. Firstly,
 it based on a very generic principle (using planners) so it can be easily modified and used
-to generate other than Sokoban puzzles. Secondly, it is using a constantly
+to generate puzzles other than Sokoban. Secondly, it is using a constantly
 evolving search technology (automated planning) so the generator will automatically
 improve with time as planners get more and more performant. Thirdly, it is very simple
 and easy to implement and customize.
