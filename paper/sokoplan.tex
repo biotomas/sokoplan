@@ -28,18 +28,18 @@
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
-%\author{Tom\'a\v{s} Balyo\inst{1} \and
-%Nils Froleyks\inst{2}}
+\author{Tom\'a\v{s} Balyo\inst{1} \and
+Nils Froleyks\inst{2}}
 %
-%\authorrunning{Tom\'a\v{s} Balyo, Nils Froleyks}
+\authorrunning{Tom\'a\v{s} Balyo, Nils Froleyks}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-%\institute{CAS Software AG, Karlsruhe, Germany\\
-%\email{tomas.balyo@cas.de}
-%\and
-%Johannes Kepler University, Linz, Austria\\
-%\email{nils.froleyks@jku.at}}
+\institute{CAS Software AG, Karlsruhe, Germany\\
+\email{tomas.balyo@cas.de}
+\and
+Johannes Kepler University, Linz, Austria\\
+\email{nils.froleyks@jku.at}}
 %
 \maketitle              % typeset the header of the contribution
 
@@ -141,7 +141,7 @@ variable has a type. For example a variable "c" of the type "city" would be decl
 
 Variables appear in \emph{Predicates}, which are atomic statements that are used to express certain
 conditions. For example, a predicate called "livesIn" could have two parameters, one of the type "person"
-and one of the type "city". In PDLL we would declare this predicate as \verb _(livesIn ?p - person ?c - city)_
+and one of the type "city". In PDDL we would declare this predicate as \verb _(livesIn ?p - person ?c - city)_
 and it would mean that an object of type "person" lives in an object of type "city". Using the predicate
 we can now declare facts about our objects by substituting variables with objects of the proper type, for example:
 
@@ -208,7 +208,7 @@ all variables)
 
 When describing a planning problem in PDDL we split the description into two files: domain.pddl and problem.pddl.
 The first file, domain.pddl, contains the types, predicates, and operators. The rest is written in the problem.pddl
-file. Four our moving example the domain.pddl would look like:
+file. For our moving example the domain.pddl would look like:
 
 \begin{verbatim}
 (define (domain moving)
@@ -461,7 +461,7 @@ Next we describe the push-up operator:
   )
 )
 \end{verbatim}
-Like int the case of move operators, the other three push operators (push down, left, and right) only differ
+Like in the case of move operators, the other three push operators (push down, left, and right) only differ
 on the lines with the "above" predicates.
 
 What remains is to specify the initial state and the goal conditions. For the initial state we need to declare
@@ -600,7 +600,7 @@ with operators to place walls and boxes.
   )                            )
   :effect(and                  :effect(and
     (wall_at ?to)                (box_at ?to)
-    (wall_placed ?w)             (box_placed ?w)
+    (wall_placed ?w)             (box_placed ?b)
   )                            )
 )                            )
 \end{verbatim}
@@ -652,7 +652,7 @@ problem. They start with a level that contains the worker and is otherwise full 
 walls and add some boxes. We start with
 a partially built level that already contains all the goals and then we add additional walls, boxes and the worker.
 Then both approaches have a special action that transitions the search into the playing mode.
-Finally, in our approach we try to solve the level and backtrack to level building phase if it is not solvable.
+Finally, in our approach we try to solve the level and backtrack to the level building phase if it is not solvable.
 In Kartal et al.~\cite{kartal2016data} random moves are executed for some time and then the reached state is
 declared to be the goal state.
 
@@ -804,7 +804,7 @@ time limit (of 1 minute). Unfortunately, in most cases, we cannot distinguish be
 since planners are not very good at proving non-existence of plans.
 
 For most of the base templates we could solve around 20 of the 30 level templates, except for X and B,
-which seem to be to tight to add more than 2 walls and 2 boxes in most of the cases.
+which seem to be too tight to add more than 2 walls and 2 boxes in most of the cases.
 On the large base templates (XX, II, and Pi) we failed to solve most of the higher complexity templates. We
 believe that this is not due to the not existence of solutions, rather it is caused by the inability of
 the planner to find a solution within the given time limit.
@@ -832,7 +832,7 @@ other available planners.
 We plan to develop a user friendly graphical user interface (GUI) for our generator
 to make it easy to use for less technical users.
 
-Finally, we would like to test or general method on other puzzles than Sokoban. As described in
+Finally, we would like to test our general method on other puzzles than Sokoban. As described in
 the paper, this mostly only amounts to formulating new PDDL models for the given puzzles.
 
 %
