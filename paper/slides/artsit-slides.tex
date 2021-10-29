@@ -1,0 +1,314 @@
+\documentclass[12pt, aspectratio=169]{beamer} % aspectratio = either 43 or 169
+
+% colors (theme=...): red (default), blue, cyan, orange, green
+%\usetheme[department=winuk,theme=cyan]{tue2008}
+\usetheme{Warsaw}
+\usecolortheme{beaver}
+\setbeamercovered{transparent}
+\mode<presentation>
+
+%macros for sokoban level figures
+\newcommand{\sokoimg}[1]{\includegraphics[scale=1.5]{#1} \hspace{-0.31em}}
+
+\newcommand{\w}{\sokoimg{../figures/wall.pdf}}
+\newcommand{\e}{\sokoimg{../figures/empty.pdf}}
+\newcommand{\p}{\sokoimg{../figures/player.pdf}}
+\newcommand{\x}{\sokoimg{../figures/box.pdf}}
+\newcommand{\g}{\sokoimg{../figures/goal.pdf}}
+\newcommand{\h}{\sokoimg{../figures/goalbox.pdf}}
+\newcommand{\n}{\\
+\vspace{-0.1em}}
+
+
+% title and author
+%
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+%
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+
+\title{AI Assisted Design of Sokoban Puzzles\\
+using Automated Planning}
+\author{Tom\'a\v{s} Balyo\inst{1} \and
+Nils Froleyks\inst{2}}
+
+%\institute{CAS Software AG, Karlsruhe, Germany\\
+%\email{tomas.balyo@cas.de}
+%\and
+%Johannes Kepler University, Linz, Austria\\
+%\email{nils.froleyks@jku.at}}
+
+
+
+\institute[Universities Here and There] % (optional)
+{
+  \inst{1}%
+  CAS Software, Karlsruhe, Germany\newline
+  tomas.balyo@cas.de
+  \and
+  \inst{2}%
+  Johannes Kepler University, Linz, Austria\newline
+  nils.froleyks@jku.at
+}
+\date[KPT 2021] % (optional)
+{EAI ArtsIT 2021 – 10th EAI International Conference: ArtsIT,\newline Interactivity \& Game Creation}
+\subject{Computer Science}
+% document
+\begin{document}
+
+\begin{frame}[plain]\titlepage\end{frame}
+
+\begin{frame}{Contents of the Talk}
+  \begin{itemize}
+    \item What is Sokoban
+    \item Designing levels for Sokoban
+    \item How does our new level design tool work
+    \item Usage demonstration
+    \item Evaluation and Conclusion
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What is Sokoban}
+\begin{columns}[c] % the "c" option specifies center vertical alignment
+    \column{.69\textwidth} % column designated by a command
+  \begin{itemize}
+    \item A puzzle game originally from Japan in 1982
+    \pause
+    \item A level (warehouse) consists of a single worker and multiple walls, boxes and goal positions
+    \pause
+    \item The player can move the worker in the 4 cardinal directions (up, down, left, right)
+    \pause
+    \item The worker cannot walk through walls
+    \pause
+    \item The worker can push a box if the tile behind it is empty (no wall or other box there)
+    \pause
+    \item The goal is to push the boxes onto goal positions
+  \end{itemize}
+    \column{.29\textwidth}
+\only<1-2>{    
+\begin{figure}
+\centering
+\w\w\w\w\e\n
+\w\e\p\w\e\n
+\w\x\w\w\w\n
+\w\e\x\g\w\n
+\w\g\w\w\w\n
+\w\w\w\e\e\n
+\end{figure}
+}
+\only<3-4>{    
+\begin{figure}
+\centering
+\w\w\w\w\e\n
+\w\p\e\w\e\n
+\w\x\w\w\w\n
+\w\e\x\g\w\n
+\w\g\w\w\w\n
+\w\w\w\e\e\n
+\end{figure}
+}
+\only<5>{    
+\begin{figure}
+\centering
+\w\w\w\w\e\n
+\w\e\e\w\e\n
+\w\p\w\w\w\n
+\w\x\x\g\w\n
+\w\g\w\w\w\n
+\w\w\w\e\e\n
+\end{figure}
+}
+\only<6>{    
+\begin{figure}
+\centering
+\w\w\w\w\e\n
+\w\e\e\w\e\n
+\w\e\w\w\w\n
+\w\e\p\h\w\n
+\w\h\w\w\w\n
+\w\w\w\e\e\n
+\end{figure}
+}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Why Sokoban?}
+  \begin{itemize}
+    \item Sokoban is well known in Video Games Communities
+    \begin{itemize}
+    	\item Multiple implementations on almost all existing platforms
+    	\item Thousands of levels created by designers and fans
+    \end{itemize}
+    \item Sokoban is also well known in Computer Science Research
+    \begin{itemize}
+    	\item In Complexity Theory -- it was proven to be P-SPACE complete
+    	\item In Artificial Intelligence -- numerous papers on solving and generating Sokoban levels have been published
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What is a good Sokoban Level?}
+  \begin{itemize}
+    \item A level should be solvable
+    \begin{itemize}
+    	\item unsolvable levels are interesting in research but frustrating for human players
+    	\item easy to guarantee in automatic generation
+    \end{itemize}
+    \item A level should be challenging
+    \begin{itemize}
+    	\item avoid levels that are solved with very few steps
+    	\item avoid levels with obvious solutions
+    	\item challenging to ensure in automatic generation
+    \end{itemize}
+    \item A level should be visually attractive for human players
+    \begin{itemize}
+    	\item very difficult to achieve without a human designer
+    \end{itemize}
+    
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{How our Generator Works}
+\begin{itemize}
+\item basic idea -- translate the task of designing a level into a standard planning problem and use a state-of-the-art automated planner to solve it
+\pause
+\item what is a planning problem?
+\begin{itemize}
+\item given a set of possible actions, initial state and goal conditions
+\item find a sequence of actions that can get us from the initial state to a state where all goal
+conditions are met
+\item a well researched problem with very efficient solver programs available
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{How our Generator Works}
+\begin{itemize}
+\item how to express level design as a planning problem?
+\pause
+\begin{itemize}
+\item the initial state is an unfinished level where additional boxes, walls, and the worker can
+be added at certain locations -- specified by the human designer
+\pause
+\item the goal conditions are that the specified number of boxes, walls, and the worker is added and the level is solvable
+\pause
+\item the possible actions are placing items and playing the game
+\pause
+\item the final plan has two parts, the first part is placing items to finish the level, the second is solving the level
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{How to use our Generator}
+There is a standard text format for Sokoban levels
+\begin{columns}[c] % the "c" option specifies center vertical alignment
+    \column{.39\textwidth} % column designated by a command
+\begin{figure}
+\centering
+\w\w\w\w\e\n
+\w\e\p\w\e\n
+\w\x\w\w\w\n
+\w\e\x\g\w\n
+\w\g\w\w\w\n
+\w\w\w\e\e\n
+\end{figure}
+
+    \column{.59\textwidth} % column designated by a command
+\begin{verbatim}
+####     symbols:   
+# @#      # - wall          
+#$###     @ - worker        
+# $.#     + - worker on goal
+#.###     $ - box        
+###       . - goal        
+          * - box on goal
+          
+\end{verbatim}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{How to use our Generator}
+We extend the format with additional symbols to specify possible locations of additional
+walls, boxes, and the worker.
+\begin{columns}[c] % the "c" option specifies center vertical alignment
+    \column{.29\textwidth} % column designated by a command
+\begin{figure}
+\centering
+\w\w\w\w\e\n
+\w\e\e\w\e\n
+\w\e\w\w\w\n
+\w\e\e\g\w\n
+\w\g\w\w\w\n
+\w\w\w\e\e\n
+\end{figure}
+
+    \column{.69\textwidth} % column designated by a command
+\begin{verbatim}
+####   symbols:            what can be added:
+# 1#    # - wall            0 - anything
+#0###   @ - worker          1 - worker  
+#00.#   + - worker on goal  2 - wall    
+#.###   $ - box             3 - box           
+###     . - goal            4 - worker or wall
+        * - box on goal     5 - worker or box
+                            6 - wall or box
+\end{verbatim}
+\end{columns}
+\end{frame}
+
+\begin{frame}{How our Generator Works}
+\begin{enumerate}
+\item use any text editor to create level template as shown above
+\item save to a text file, for example \textit{level.txt}
+\item download our tool from \url{https://github.com/biotomas/sokoplan} and build it following the instructions
+\item run the tool with the command \texttt{./run.sh level.txt}
+\item the generated level will be saved to a file \textit{level.txt.solution}
+\item you can see and test your level using the included \textit{levelTester.html}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Demonstration}
+\end{frame}
+
+\begin{frame}{Previous vs Our Generator}
+\begin{itemize}
+\item Previous work
+\begin{itemize}
+\item fully automatic level generators
+\item based on the principle of generating plenty of levels and then filter the good ones
+\item the search algorithm is fully integrated, the generator does not improve over time without extensive maintenance
+\end{itemize}
+\item Our Generator
+\begin{itemize}
+\item the tool utilizes human input
+\item based on the principle of searching for the good level directly
+\item the search is outsourced to Automated Planners, which get better over time improving the generator tool automatically
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Conclusion}
+\begin{itemize}
+\item We developed a new tool to assist a human level designer in developing Sokoban puzzle levels. 
+\item It has some limitations
+\begin{itemize}
+\item the outline of the level must be provided
+\item all the goals must be placed by the designer
+\item performance problems with large levels
+\item very technical user interface
+\end{itemize}
+\item Future work
+\begin{itemize}
+\item fix the limitations
+\item use the approach to develop tools for other similar games
+\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+\end{document}

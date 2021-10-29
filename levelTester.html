@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sokoban Level Tester</title>
+</head>
+<body>
+<h3>Enter the level text definition here</h3>
+<textarea id="customLevel" rows=10 cols=20 oninput="updateLevel()">########
+#  .####
+# $.. ##
+#  ##$##
+##  #  #
+##$   @#
+##  ####
+########
+</textarea>
+
+</br>
+<h3>Play the level</h3>
+<p>You can move the player with the arrow keys. Hit "R" to restart the level and "U" to undo the last move</p>
+<canvas id="canvas" width="600" height="600"/>
+
+
+<script>
+var canvas = document.getElementById("canvas");
+var c = canvas.getContext("2d");
+c.fillStyle = 'blue';
+//c.fillRect(10, 10, 60, 80);
+
+const gridSize = 60;
+
+var grid = document.getElementById("customLevel").value.split("\n").map(function(x){return x.split("")});
+
+var moveHistory = new Array();
+
+// player position
+var px = 0;
+var py = 0;
+
+const items = {
+	WALL:"#",
+  PLAYER:"@",
+  PLAYERGOAL:"+",
+  BOX:"$",
+  BOXGOAL:"*",
+  GOAL:".",
+  FLOOR:" "
+};
+
+const keys = {
+	LEFT:37,
+	UP:38,
+	RIGHT:39,
+	DOWN:40,
+	RESTART:82,
+	UNDO:85
+}
+
+function draw() {
+	c.clearRect(0, 0, canvas.width, canvas.height);
+	for (y = 0; y < grid.length; y++) {
+		ln = grid[y];
+		for (x = 0; x < ln.length; x++) {
+		  switch (grid[y][x]) {
+			case items.WALL:
+				c.fillStyle = 'black';
+				c.fillRect(x*gridSize,y*gridSize,gridSize,gridSize);
+				break;
+			case items.BOX:
+				c.fillStyle = 'brown';
+				c.fillRect(x*gridSize+5,y*gridSize+5,gridSize-10,gridSize-10);
+				break;
+			case items.BOXGOAL:
+				c.fillStyle = 'brown';
+				c.fillRect(x*gridSize+5,y*gridSize+5,gridSize-10,gridSize-10);
+				c.fillStyle = 'yellow';
+				c.beginPath();
+				c.arc(x*gridSize + gridSize/2, y*gridSize + gridSize/2, gridSize/4, 0, 2 * Math.PI, false);
+				c.lineWidth = 3;
+				c.stroke();
+				break;
+			case items.GOAL:
+				c.beginPath();
+				c.arc(x*gridSize + gridSize/2, y*gridSize + gridSize/2, gridSize/4, 0, 2 * Math.PI, false);
+				c.lineWidth = 3;
+				c.stroke();
+				break;
+			case items.PLAYER:
+				c.fillStyle = 'yellow';
+				c.beginPath();
+				c.arc(x*gridSize + gridSize/2, y*gridSize + gridSize/2, gridSize/2.5, 0, 2 * Math.PI, false);
+				c.fill();
+				c.lineWidth = 3;
+				c.stroke();
+
+				px = x;
+				py = y;
+				break;
+			case items.PLAYERGOAL:
+				c.fillStyle = 'yellow';
+				c.beginPath();
+				c.arc(x*gridSize + gridSize/2, y*gridSize + gridSize/2, gridSize/2.5, 0, 2 * Math.PI, false);
+				c.fill();
+				c.lineWidth = 3;
+				c.stroke();
+				c.beginPath();
+				c.arc(x*gridSize + gridSize/2, y*gridSize + gridSize/2, gridSize/4, 0, 2 * Math.PI, false);
+				c.lineWidth = 3;
+				c.stroke();
+
+				px = x;
+				py = y;
+				break;
+			}
+		}
+	}
+}
+
+draw();
+
+function updateLevel() {
+  grid = document.getElementById("customLevel").value.split("\n").map(function(x){return x.split("")});
+	console.log(moveHistory);
+	moveHistory = [];
+	draw();	
+}
+
+document.onkeydown = function(evt) {
+	evt = evt || window.event;
+	// where the player wants to move
+	//console.log(evt.keyCode);
+  gx = px;
+	gy = py;
+	switch (evt.keyCode) {
+		case keys.LEFT: 
+			gx--;
+			break;
+		case keys.RIGHT: 
+			gx++;
+			break;
+		case keys.UP: 
+			gy--;
+			break;
+		case keys.DOWN: 
+			gy++;
+			break;
+		case keys.RESTART:
+			updateLevel();
+			return;
+		case keys.UNDO:
+			var prevGrid = moveHistory.pop();
+			if (prevGrid != null)
+				grid = prevGrid;
+			draw();
+			return;
+	}
+	switch(grid[gy][gx]) {
+		case items.FLOOR:
+			moveHistory.push(JSON.parse(JSON.stringify(grid)));
+			grid[gy][gx] = items.PLAYER;
+			grid[py][px] = grid[py][px] == items.PLAYERGOAL ? items.GOAL : items.FLOOR;
+			break;
+		case items.GOAL:
+			moveHistory.push(JSON.parse(JSON.stringify(grid)));
+			grid[gy][gx] = items.PLAYERGOAL;
+			grid[py][px] = grid[py][px] == items.PLAYERGOAL ? items.GOAL : items.FLOOR;
+			break;
+		case items.BOX:
+		case items.BOXGOAL:
+			moveHistory.push(JSON.parse(JSON.stringify(grid)));
+			bx = (gx-px)+gx;
+			by = (gy-py)+gy;
+			if (grid[by][bx] == items.FLOOR || grid[by][bx] == items.GOAL) {
+				grid[by][bx] = grid[by][bx] == items.FLOOR ? items.BOX : items.BOXGOAL;
+				grid[gy][gx] = grid[gy][gx] == items.BOX ? items.PLAYER : items.PLAYERGOAL;
+				grid[py][px] = grid[py][px] == items.PLAYERGOAL ? items.GOAL : items.FLOOR;
+			}
+			break;
+	}
+	draw();
+};
+
+</script>
+
+</body>
+</html>
