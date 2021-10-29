@@ -2,5 +2,5 @@
 git clone https://github.com/aibasel/downward.git
 # build it
 cd downward
-python build.py
+python3 build.py
 cd ..

@@ -1,0 +1,25 @@
+; lines starting with ";" are comments
+; symbols used:
+;  # - wall
+;  @ - player
+;  $ - box
+;  . - goal 
+;  * - box on goal
+;  + - player on goal
+;  EXTENSION:
+;  0 - possible player or wall or box
+;  1 - possible player
+;  2 - possible wall
+;  3 - possible box
+;  4 - possible player or wall
+;  5 - possible player or box
+;  6 - possible wall or box
+; problems definition lines has the format:
+;  p sokogen <walls> <boxes> <min-pushes>
+p sokogen 1 2 3 
+####
+#00#
+#00##
+#00.#
+#.###
+###
